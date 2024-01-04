@@ -1,0 +1,261 @@
+---
+title: "Fresh_weight_lipase"
+author: "Hoang Hung Nguyen"
+date: "2023-11-14"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Used libraries
+```{r setup, message=FALSE, warning=FALSE}
+library("ggplot2")
+library("tibble")
+library("tidyr")
+library("plyr")
+library("ggpubr")
+library("agricolae")
+library("ggbreak")
+library("scales")
+library("multcompView")
+library("agricolae")
+```
+## Read Files
+```{r read files, message=FALSE, warning=FALSE}
+fresh_weight <- read.csv2(file = "./Data/Fresh_weight_lipase_like.csv", header = TRUE, dec = ",", sep = ";", fileEncoding="UTF-8-BOM")[,1:3]
+fresh_weight$Fresh_weight<- as.numeric(as.character(fresh_weight$Fresh_weight))
+fresh_weight = as_tibble(fresh_weight)
+fresh_weight$Line = gsub("Col-0", "Col", fresh_weight$Line)
+fresh_weight2 = separate(fresh_weight, Line, sep =  "-", into = c("Line", "Treatment"))
+fresh_weight2$Treatment = replace_na(fresh_weight2$Treatment, "M")
+fresh_weight2$shapes = rep(NA, length(fresh_weight2$Batch))
+fresh_weight2$shapes[fresh_weight2$Batch == "batch1"] = 21
+fresh_weight2$shapes[fresh_weight2$Batch == "batch2"] = 24
+fresh_weight2$shapes[fresh_weight2$Batch == "batch3"] = 23
+fresh_weight2$Treatment = factor(fresh_weight2$Treatment, levels = c("M", "E2"))
+fresh_weight2$Fresh_weight = fresh_weight2$Fresh_weight
+
+fresh_weight <- read.csv2(file = "./Data/Fresh_weight_lipase_like_ratio.csv", header = TRUE, dec = ",", sep = ";", fileEncoding="UTF-8-BOM")[,1:4]
+fresh_weight$Fresh_weight<- as.numeric(as.character(fresh_weight$Fresh_weight))
+fresh_weight = as_tibble(fresh_weight)
+fresh_weight$Line = gsub("Col-0", "Col", fresh_weight$Line)
+fresh_weight2 = separate(fresh_weight, Line, sep =  "-", into = c("Line", "Treatment"))
+fresh_weight2$Treatment = replace_na(fresh_weight2$Treatment, "M")
+#fresh_weight$Line = factor(fresh_weight$Line, levels = unique(fresh_weight$Line))
+fresh_weight2$shapes = rep(NA, length(fresh_weight2$Batch))
+fresh_weight2$shapes[fresh_weight2$Batch == "batch1"] = 21
+fresh_weight2$shapes[fresh_weight2$Batch == "batch2"] = 24
+fresh_weight2$shapes[fresh_weight2$Batch == "batch3"] = 23
+#fresh_weight2$shapes[fresh_weight2$Batch == "batch4"] = 22
+fresh_weight2$Treatment = factor(fresh_weight2$Treatment, levels = c("M", "E2"))
+fresh_weight2$Fresh_weight = fresh_weight2$Ratio
+fresh_weight3 <- na.omit(read.csv2(file = "./Data/Fresh_weight_lipase_like_ratio.csv", header = TRUE, dec = ",", sep = ";", fileEncoding="UTF-8-BOM")[,5:12])
+fresh_weight3$Treatment = factor(fresh_weight3$Treatment, levels = c("Mock", "E2"))
+
+```
+## Plot Figure
+```{r Plot figures, message=FALSE, warning=FALSE}
+
+dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = element_text(size=12), axis.text = element_text(size=12),
+        axis.text.x = element_text(margin = margin(t = 5), size = 12, face = "italic", colour = "black", angle = 20, hjust=1),
+        axis.text.y = element_text(color = "black"),
+        axis.line = element_blank(),
+        axis.ticks = element_line(size = 1),
+        axis.title.x = element_blank(),
+        legend.position="none", 
+        legend.text= element_text(size = 12),
+        #legend.title = element_text(size = 16, face = "bold"),
+        panel.background = element_blank(),
+        panel.spacing.x = unit(1, "lines"),
+        panel.spacing.y=unit(0,"lines"),
+        panel.grid =  element_blank(),
+        legend.title = element_blank(),
+        #panel.grid.major.y =  element_line(colour = "#999999"),
+        panel.grid.minor.y =  element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
+        strip.background =element_rect(fill="white"),
+        strip.text.x = element_text(size = 12, hjust = 0.5))
+
+lipase_pooled_bar <- ggplot(data = fresh_weight3, aes(x = Line_mean, y = Fresh_weight_ratio_mean)) +
+  geom_bar(aes(color = Treatment), fill = "white", stat = "identity", position=position_dodge()) +
+  geom_errorbar(aes(x = Line_mean, ymax=Fresh_weight_ratio_mean + Fresh_weight_ratio_sd, ymin = Fresh_weight_ratio_mean - Fresh_weight_ratio_sd, color = Treatment), position = position_dodge(0.9),
+                 size = 0.25, width = 0.25) +
+  scale_color_manual(values = c("#F93D3D", "#0072B2"),
+                    name = "Treatment", labels = c("Mock", "Estradiol"))  +
+  scale_shape_manual(values = unique(fresh_weight2$shapes)) +
+  labs(y = "Normalized fresh weight", x = "Line") +
+  dlab_theme +
+  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_ps", "SETI_pad4", "SETI_sag101", "Col-0"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")), expression("Col-0"))) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,1.3)) 
+
+plot(lipase_pooled_bar)
+```
+
+## Statistics
+
+```{r Statistics wilcox test, include=FALSE, echo = FALSE, eval = FALSE, message = FALSE}
+################### Statistics Kruskal-Wallis
+fresh_weight2 = tibble(fresh_weight2)
+fresh_weight3 = unite(data = fresh_weight2, col = "Line_Treatment" , c(Line, Treatment), sep = ":", remove = FALSE)
+fresh_weight3$Line_Treatment = factor(fresh_weight3$Line_Treatment)
+#ggline(fresh_weight, x = "Line", y = "Fresh_weight", 
+#       add = c("mean_se", "jitter"), 
+#       ylab = "Weight", xlab = "Treatment")
+
+library("reshape")
+
+kruskal.test(Fresh_weight ~ Line_Treatment, data = fresh_weight3)
+levels(fresh_weight3$Line_Treatment)
+test = pairwise.wilcox.test(fresh_weight3$Fresh_weight, fresh_weight3$Line_Treatment, paired = FALSE,
+                            p.adjust.method = "BH")
+
+
+stats = names(multcompLetters(test$p.value)[[1]])
+
+stats_table = data.frame(Line_treatment = NA,
+                         sig_letters = NA, Batch = NA)
+
+for (Batch in unique(fresh_weight3$Batch)) {
+  kruskal.test(Fresh_weight ~ Line, data = fresh_weight3)
+  test = pairwise.wilcox.test(fresh_weight3$Fresh_weight, fresh_weight3$Line_Treatment, paired = FALSE,
+                              p.adjust.method = "BH")
+  
+  a <- melt(test$p.value)
+  a.cc  <-  na.omit(a)
+  a.pvals  <-  a.cc[, 3]
+  names(a.pvals)  <-  paste(a.cc[, 1], a.cc[, 2], sep="-")
+  stats = multcompLetters(a.pvals)
+  
+  batches = rep(Batch, length(stats[[1]]))
+  line_treatment = names(stats[[1]])
+  sig_letters = stats[[1]]
+  
+  
+  help_table = data.frame(Line_treatment = line_treatment,
+                          sig_letters = sig_letters, Batch = batches)
+  stats_table = rbind(stats_table, help_table)
+  stats_table = na.omit(stats_table)
+}
+
+levels(factor(stats_table$Line_treatment))
+
+stats_table$Line_treatment = factor(stats_table$Line_treatment, levels = c("SETI_wt:M", "SETI_wt:E2", "SETI_eds1:M",
+                                                                           "SETI_eds1:E2",
+                                                                           "SETI_ps:M", "SETI_ps:E2",
+                                                                           "SETI_pad4:M", "SETI_pad4:E2", 
+                                                                           "SETI_sag101:M", "SETI_sag101:E2",
+                                                                           "Col:M", "Col:E2"))
+
+line_treatment_order = order(factor(stats_table$Line_treatment))
+stats_table_1 = stats_table[line_treatment_order,]
+order2 = order(factor(stats_table_1$Batch, levels = c("batch1", "batch2", "batch3", "batch4")))
+stats_table_2 = stats_table_1[order2,]
+```
+
+```{r Statistics LSD, include=TRUE, echo=TRUE, message=TRUE}
+################### Fisher’s least significant difference (LSD) test
+stats_table = data.frame(Line_treatment = rep(NA, 12),
+                         sig_letters = rep(NA, 12), Batch = rep(NA, 12))
+
+activity_treatment = aov(Fresh_weight~ Line*Treatment + Batch, data = fresh_weight2)
+print(summary(activity_treatment))
+LSD_result <- LSD.test(activity_treatment, c("Treatment", "Line"), alpha = 0.05)
+
+stats_table$Line_treatment = factor(row.names(LSD_result$groups), levels = c("M:SETI_wt", "E2:SETI_wt", "M:SETI_eds1",
+                                                                           "E2:SETI_eds1",
+                                                                           "M:SETI_ps", "E2:SETI_ps",
+                                                                           "M:SETI_pad4", "E2:SETI_pad4", 
+                                                                           "M:SETI_sag101", "E2:SETI_sag101",
+                                                                           "M:Col", "E2:Col"))
+stats_table$sig_letters = LSD_result$groups[[2]]
+
+line_treatment_order = order(factor(stats_table$Line_treatment))
+stats_table_1 = stats_table[line_treatment_order,]
+stats_table_pooled = stats_table_1 
+print(LSD_result)
+```
+
+```{r Tuckey, include=FALSE, echo = FALSE, eval = FALSE, message = FALSE}
+################### Statistics
+# Pooled batch
+
+stats_table = data.frame(Line_treatment = rep(NA, 12),
+                         sig_letters = rep(NA, 12), Batch = rep(NA, 12))
+
+activity_treatment = aov(fresh_weight2$Fresh_weight~factor(fresh_weight2$Line)*factor(fresh_weight2$Treatment) + factor(fresh_weight2$Batch))
+
+summary(activity_treatment)
+Tuckey <- TukeyHSD(activity_treatment)
+stats = multcompLetters4(activity_treatment, Tuckey,  threshold = 0.1)
+
+stats_table$Line_treatment = factor(names(stats$`factor(fresh_weight2$Line):factor(fresh_weight2$Treatment)`[[1]]), levels = c("SETI_wt:M", "SETI_wt:E2", "SETI_eds1:M",
+                                                                           "SETI_eds1:E2",
+                                                                           "SETI_ps:M", "SETI_ps:E2",
+                                                                           "SETI_pad4:M", "SETI_pad4:E2", 
+                                                                           "SETI_sag101:M", "SETI_sag101:E2",
+                                                                           "Col:M", "Col:E2"))
+
+stats_table$sig_letters = stats$`factor(fresh_weight2$Line):factor(fresh_weight2$Treatment)`[[1]]
+
+line_treatment_order = order(factor(stats_table$Line_treatment))
+stats_table_1 = stats_table[line_treatment_order,]
+stats_table_pooled = stats_table_1 
+
+
+
+# Multiple Timepoints
+stats_table = data.frame(Line_treatment = NA,
+                         sig_letters = NA, Batch = NA)
+for (Batch in unique(fresh_weight2$Batch)) {
+  activity_treatment = aov(fresh_weight2$Fresh_weight[fresh_weight2$Batch== Batch] ~ fresh_weight2$Line[fresh_weight2$Batch== Batch] * fresh_weight2$Treatment[fresh_weight2$Batch== Batch])
+  summary(activity_treatment)
+  Tuckey <- TukeyHSD(activity_treatment, conf.level = 0.90)
+  stats = multcompLetters4(activity_treatment, Tuckey, threshold = 0.1)
+  batches = rep(Batch, length(stats[["fresh_weight2$Line[fresh_weight2$Batch == Batch]:fresh_weight2$Treatment[fresh_weight2$Batch == Batch]"]][[1]]))
+  line_treatment = names(stats[["fresh_weight2$Line[fresh_weight2$Batch == Batch]:fresh_weight2$Treatment[fresh_weight2$Batch == Batch]"]][[1]])
+  sig_letters = stats[["fresh_weight2$Line[fresh_weight2$Batch == Batch]:fresh_weight2$Treatment[fresh_weight2$Batch == Batch]"]][[1]]
+  
+  
+  help_table = data.frame(Line_treatment = line_treatment,
+                          sig_letters = sig_letters, Batch = batches)
+  stats_table = rbind(stats_table, help_table)
+  stats_table = na.omit(stats_table)
+}
+
+levels(factor(stats_table$Line_treatment))
+
+stats_table$Line_treatment = factor(stats_table$Line_treatment, levels = c("SETI_wt:M", "SETI_wt:E2", "SETI_eds1:M",
+                                                                           "SETI_eds1:E2",
+                                                                           "SETI_ps:M", "SETI_ps:E2",
+                                                                           "SETI_pad4:M", "SETI_pad4:E2", 
+                                                                           "SETI_sag101:M", "SETI_sag101:E2",
+                                                                           "Col:M", "Col:E2"))
+
+line_treatment_order = order(factor(stats_table$Line_treatment))
+stats_table_1 = stats_table[line_treatment_order,]
+order2 = order(factor(stats_table_1$Batch, levels = c("batch1", "batch2", "batch3", "batch4")))
+stats_table_2 = stats_table_1[order2,]
+
+```
+
+## Finished Plot
+
+```{r Plotting, include=TRUE, message=FALSE, echo=TRUE}
+################### Plotting
+# Pooled plots
+
+test = ggplot_build(lipase_pooled_bar)
+lipase_pooled2 = lipase_pooled_bar  +
+  geom_text(data = tibble(test = 1:12), x = sort(test[["data"]][[1]][["x"]]), y = test[["data"]][[2]][["ymax"]][order(test[["data"]][[1]][["x"]])] + 0.05, label = stats_table_pooled$sig_letters, size = 3, color = "black", inherit.aes = FALSE) 
+
+print(lipase_pooled2)
+```
+
+```{r Printing, include=FALSE, echo = FALSE, eval = FALSE, message = FALSE}
+png(file="lipase_fresh_weight_batches_batches_0_1.png",
+    width=1182, height=829, res = 120)
+lipase_pooled2
+dev.off()
+
+ggsave("lipase_fresh_weight_batches.pdf", units = "in", width = 4,
+  height = 3.25)
+```

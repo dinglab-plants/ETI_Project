@@ -1,0 +1,122 @@
+---
+title: "RNA-seq Analysis Heatmap"
+author: "HHN"
+date: "2023-11-10"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries used here:
+
+```{r Setup, warning=FALSE, message=FALSE}
+library("ComplexHeatmap")
+library("circlize")
+library("ggpubr")
+library("stringr")
+library("r2r")
+library("ggalt")
+library("gridExtra")
+library("grid")
+```
+
+
+## Read Files
+
+```{r Read Files}
+selected_genes = read.csv2("./Data/selected_DEGs.csv", dec = ".")
+selected_genes$cluster = factor(selected_genes$cluster)
+
+gene_list = read.csv2(file = "./Data/Significant DE genes list and statistics.csv", sep = ",", dec = ".",
+                      header = TRUE)
+gene_list = gene_list[gene_list$contrast != "SETI_p.E-SETI_s.E" & gene_list$contrast != "SETI_p.E-SETI_WT.E"
+          & gene_list$contrast != "SETI_s.E-SETI_WT.E", ]
+gene_list$contrast = factor(gene_list$contrast)
+```
+
+## Heatmap
+
+```{r Heat map, echo=TRUE, message=FALSE, warning=FALSE}
+test = selected_genes[,c(3,7,5,4,6)]
+rownames(test) = paste(selected_genes$Gene_id, " ", "(",selected_genes$Gene,")", sep = "")
+test2 = as.matrix(test)
+
+col_fun = colorRamp2(c(0, 4, 8 ), c("white", "orange", "red"))
+col_fun(seq(-3, 3))
+
+selected_genes$cluster = factor(selected_genes$cluster)
+plot_heatmap = Heatmap(test2, name = "Log2(Fold Change)", col_fun, split = selected_genes$cluster, rect_gp = gpar(col = "black"), row_gap = unit(1.5, "mm"), show_parent_dend_line = FALSE, row_order = order(as.numeric(gsub("row", "", rownames(test)))),
+        row_labels = rownames(test), row_names_gp = gpar(fontsize = 8, fontface = "italic"), show_column_names = TRUE, column_names_rot = 45, column_order = c("SETI", "eds1", "pad4", "sag101", "pad4sag101"), column_labels = c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")), expression("SETI" ~ italic("pad4 sag101"))))
+
+plot_heatmap 
+```
+
+```{r Print plot, include=FALSE, echo=FALSE, eval=FALSE}
+pdf(file="heatmap.pdf",
+    width = 8,
+  height = 6.5)
+plot_heatmap
+dev.off()
+```
+
+##  DEGs Count
+
+```{r Barplot_up_and_down, echo=TRUE, message=FALSE, warning=FALSE}
+dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = element_text(size=10), axis.text = element_text(size=10),
+        axis.text.x = element_text(margin = margin(t = 5), size = 10, colour = "black", angle = 20, hjust=1),
+        axis.text.y = element_text(color = "black"),
+        axis.line = element_blank(),
+        axis.ticks = element_line(size = 1),
+        axis.title.x = element_blank(),
+        legend.position="bottom", 
+        legend.text= element_text(size = 8),
+        #legend.title = element_text(size = 16, face = "bold"),
+        panel.background = element_blank(),
+        panel.spacing.x = unit(1, "lines"),
+        panel.spacing.y=unit(0,"lines"),
+        panel.grid =  element_blank(),
+        legend.title = element_blank(),
+        #panel.grid.major.y =  element_line(colour = "#999999"),
+        panel.grid.minor.y =  element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
+        strip.background =element_rect(fill="white"),
+        strip.text.x = element_text(size = 12, hjust = 0.5))
+
+
+# length(gene_list$contrast[gene_list$contrast == "sag101_WT.E-sag101_WT.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_p.E-sag101_p.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_s.E-sag101_s.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_ps.E-sag101_ps.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_e.E-sag101_e.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_WT.E-sag101_WT.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_p.E-sag101_p.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_s.E-sag101_s.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_ps.E-sag101_ps.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "sag101_e.E-sag101_e.mock" & gene_list$up.down == "down-regulated"])
+
+up_down_numbers = data.frame(lines = rep(c("sag101_WT.E-sag101_WT.mock",  "sag101_p.E-sag101_p.mock", "sag101_s.E-sag101_s.mock",
+                                       "sag101_ps.E-sag101_ps.mock", "sag101_e.E-sag101_e.mock"), 2), up_down = factor(rep(c("upregulated", "downregulated"), each = 5), levels = c("upregulated", "downregulated")), genenumbers = c(1902, 1707, 2281, 0, 0, 1044, 462, 1942, 0, 0))
+
+
+degs_count <- ggplot(data = up_down_numbers, aes(x = lines, y = genenumbers))+
+  geom_bar(aes(fill = up_down), stat = "identity", position=position_dodge(), alpha = 0.75) +
+  scale_x_discrete(limits = c("sag101_WT.E-sag101_WT.mock", "sag101_e.E-sag101_e.mock", "sag101_ps.E-sag101_ps.mock", "sag101_p.E-sag101_p.mock", "sag101_s.E-sag101_s.mock"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")))) + scale_fill_manual(values = c("#F93D3D", "#0072B2"),
+                     name = "Expression change", labels = c("Upregulated DEGs", "Downregulated DEGs"))  +
+  labs(y = "DEGs count", x = "Line") +
+  geom_text(aes(y = genenumbers/2, label = c(1902, 1707, 2281, NA, NA, 1044, 462, 1942, NA, NA), group = up_down),  position=position_dodge(0.9), size = 2) +
+  dlab_theme +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 2400)) 
+
+degs_count 
+```
+
+```{r Print DEGs_count plot, include=FALSE, echo=FALSE, eval=FALSE}
+ggsave("degs_count.pdf", plot = degs_count, units = "in", width = 4,
+  height = 3.25)
+```

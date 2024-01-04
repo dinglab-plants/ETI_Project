@@ -1,0 +1,235 @@
+---
+title: "Chlorophyll_measurement_lipase"
+author: "Hoang Hung Nguyen"
+date: "2023-10-24"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Library used here:
+
+```{r Libraries,  message=FALSE, warning=FALSE}
+library("ggplot2")
+library("tibble")
+library("tidyr")
+library("plyr")
+library("ggpubr")
+library("agricolae")
+library("ggbreak")
+library("scales")
+library("multcompView")
+library("stringr")
+```
+
+## Read files
+
+```{r Read files lipase,  message=FALSE, warning=FALSE}
+chlorophyll = read.csv2(file = "./Data/chlorophyll_lipase4batches.csv", sep = ";",
+                         header = TRUE, dec = ".")
+chlorophyll$treatment = factor(chlorophyll$treatment, levels = c("Mock", "PTI", "E2", "PE"))
+```
+
+## Plot Figure
+
+```{r Plot figures draft lipase, include=TRUE, message=FALSE, echo=TRUE}
+dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = element_text(size=12), axis.text = element_text(size=12),
+        axis.text.x = element_text(margin = margin(t = 5), size = 12, colour = "black", angle = 20, hjust=1),
+        axis.text.y = element_text(color = "black"),
+        axis.line = element_blank(),
+        axis.ticks = element_line(size = 1),
+        axis.title.x = element_blank(),
+        legend.position="none", 
+        legend.text= element_text(size = 12),
+        #legend.title = element_text(size = 16, face = "bold"),
+        panel.background = element_blank(),
+        panel.spacing.x = unit(1, "lines"),
+        panel.spacing.y=unit(0,"lines"),
+        panel.grid =  element_blank(),
+        legend.title = element_blank(),
+        #panel.grid.major.y =  element_line(colour = "#999999"),
+        panel.grid.minor.y =  element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
+        strip.background =element_rect(fill="white"),
+        strip.text.x = element_text(size = 12, hjust = 0.5))
+
+data_plot_a = ggplot(data = chlorophyll, mapping = aes(x = line, y = chla, fill = treatment)) +
+  geom_boxplot() + dlab_theme +
+   geom_jitter(mapping = aes(shape = batch, color = treatment, group = treatment), fill = "grey", size=2, position = position_jitterdodge(jitter.width = 0.1))
+data_plot_b = ggplot(data = chlorophyll, mapping = aes(x = line, y = chlb, fill = treatment)) +
+  geom_boxplot() + dlab_theme +
+   geom_jitter(mapping = aes(shape = batch, color = treatment, group = treatment), fill = "grey", size=2, position = position_jitterdodge(jitter.width = 0.1))
+data_plot_total = ggplot(data = chlorophyll, mapping = aes(x = line, y = totalchl, fill = treatment)) +
+  geom_boxplot() + dlab_theme +
+   geom_jitter(mapping = aes(shape = batch, color = treatment, group = treatment), fill = "grey", size=2, position = position_jitterdodge(jitter.width = 0.1))
+all_plots = c(data_plot_a, data_plot_b, data_plot_total)
+ggarrange(data_plot_a, data_plot_b, data_plot_total, ncol = 2, nrow = 2, common.legend = TRUE)
+```
+
+## Complex plot
+
+```{r Plot generation lipase, message=FALSE, warning=FALSE}
+
+# Colorblind URL: https://davidmathlogic.com/colorblind/#%230072B2-%23117733-%2344AA99-%2388CCEE-%23E69F00-%23F93D3D-%23AA4499-%23882255
+
+data_plot_a = ggplot(data = chlorophyll, mapping = aes(x = line, y = chla, fill = treatment)) +
+  ylim(0,0.7) +
+  geom_boxplot() +
+   geom_jitter(mapping = aes(color = treatment, group = treatment), shape = 21, size=1.5, fill = "grey", position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
+  scale_color_manual(values = c("black", "black", "black", "black")) +
+  guides(color = FALSE) +
+  labs(y = "Chlorophyll a content\n(mg/g FW)", x = "Line") +
+  scale_x_discrete(limits = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")))) + 
+  dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
+                    name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
+
+data_plot_b = ggplot(data = chlorophyll, mapping = aes(x = line, y = chlb, fill = treatment)) +
+  ylim(0,0.35) +
+  geom_boxplot()+
+   geom_jitter(mapping = aes(color = treatment, group = treatment), shape = 21, fill = "grey", size=1.5, position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
+  scale_color_manual(values = c("black", "black", "black", "black")) +
+  guides(color = FALSE) +
+  labs(y = "Chlorophyll b content\n(mg/g FW)", x = "Line") +
+  scale_x_discrete(limits = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101"))))+ 
+  dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
+                    name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
+
+data_plot_total = ggplot(data = chlorophyll, mapping = aes(x = line, y = totalchl, fill = treatment)) +
+  ylim(0,1) +
+  geom_boxplot()+
+   geom_jitter(mapping = aes(color = treatment, group = treatment), shape = 21, fill = "grey", size=1.5, position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
+  scale_color_manual(values = c("black", "black", "black", "black")) +
+  guides(color = FALSE) +
+  labs(y = "Total chlorophyll content\n(mg/g FW)", x = "Line") +
+  scale_x_discrete(limits = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")))) + 
+  dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
+                    name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
+
+all_plots = c(data_plot_a, data_plot_b, data_plot_total)
+ggarrange(data_plot_a, data_plot_b, ncol = 2, nrow = 1, common.legend = FALSE)
+```
+
+## Statistics
+
+```{r Statistics lipase, include=TRUE, echo=TRUE, message=TRUE}
+
+# Chlorophyll a
+stats_table = tibble(Line_treatment = rep(NA, 20),
+                         sig_letters = rep(NA, 20))
+
+activity_treatment = aov(chlorophyll$chla ~ chlorophyll$line*chlorophyll$treatment)
+#summary(activity_treatment)
+Tuckey <- TukeyHSD(activity_treatment)
+stats = multcompLetters4(activity_treatment, Tuckey)
+
+# Add values into table
+stats_table$Line_treatment = names(stats$`chlorophyll$line:chlorophyll$treatment`[[1]])
+stats_table = separate_wider_delim(stats_table, Line_treatment, ":", names = c("Lines", "Treatment"))
+stats_table$sig_letters = str_trim(stats$`chlorophyll$line:chlorophyll$treatment`[[2]])
+
+# Order values
+stats_table$Lines = factor(stats_table$Lines, levels = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"))
+stats_table$Treatment = factor(stats_table$Treatment, levels = c("Mock", "PTI", "E2", "PE"))
+treatment_order = order(stats_table$Treatment)
+stats_table = stats_table[treatment_order, ]
+line_order = order(stats_table$Lines)
+stats_table_a = stats_table[line_order, ]
+
+print(summary(activity_treatment))
+print(Tuckey)
+print(stats)
+
+# Chlorophyll b
+
+stats_table = tibble(Line_treatment = rep(NA, 20),
+                         sig_letters = rep(NA, 20))
+
+activity_treatment = aov(chlorophyll$chlb ~ chlorophyll$line*chlorophyll$treatment)
+#summary(activity_treatment)
+Tuckey <- TukeyHSD(activity_treatment)
+stats = multcompLetters4(activity_treatment, Tuckey)
+
+# Add values into table
+stats_table$Line_treatment = names(stats$`chlorophyll$line:chlorophyll$treatment`[[1]])
+stats_table = separate_wider_delim(stats_table, Line_treatment, ":", names = c("Lines", "Treatment"))
+stats_table$sig_letters = str_trim(stats$`chlorophyll$line:chlorophyll$treatment`[[2]])
+
+# Order values
+stats_table$Lines = factor(stats_table$Lines, levels = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"))
+stats_table$Treatment = factor(stats_table$Treatment, levels = c("Mock", "PTI", "E2", "PE"))
+treatment_order = order(stats_table$Treatment)
+stats_table = stats_table[treatment_order, ]
+line_order = order(stats_table$Lines)
+stats_table_b = stats_table[line_order, ]
+
+print(summary(activity_treatment))
+print(Tuckey)
+print(stats)
+
+
+# Chlorophyll total
+
+stats_table = tibble(Line_treatment = rep(NA, 20),
+                         sig_letters = rep(NA, 20))
+
+activity_treatment = aov(chlorophyll$totalchl ~ chlorophyll$line*chlorophyll$treatment)
+#summary(activity_treatment)
+Tuckey <- TukeyHSD(activity_treatment)
+stats = multcompLetters4(activity_treatment, Tuckey)
+
+# Add values into table
+stats_table$Line_treatment = names(stats$`chlorophyll$line:chlorophyll$treatment`[[1]])
+stats_table = separate_wider_delim(stats_table, Line_treatment, ":", names = c("Lines", "Treatment"))
+stats_table$sig_letters = str_trim(stats$`chlorophyll$line:chlorophyll$treatment`[[2]])
+
+# Order values
+stats_table$Lines = factor(stats_table$Lines, levels = c("SETI", "SETIeds1", "SETIpad4sag101", "SETIpad4", "SETIsag101"))
+stats_table$Treatment = factor(stats_table$Treatment, levels = c("Mock", "PTI", "E2", "PE"))
+treatment_order = order(stats_table$Treatment)
+stats_table = stats_table[treatment_order,]
+line_order = order(stats_table$Lines)
+stats_table_total = stats_table[line_order, ]
+
+print(summary(activity_treatment))
+print(Tuckey)
+print(stats)
+```
+
+## Full_image
+
+```{r plot generation statistics, message=FALSE, warning=FALSE}
+
+stats_a = ggplot_build(data_plot_a)
+stats_b = ggplot_build(data_plot_b)
+stats_total = ggplot_build(data_plot_total)
+
+data_plot_a = data_plot_a + 
+  geom_text(data = tibble(test = 1:20), x = stats_a[["data"]][[1]][["x"]], y = stats_a[["data"]][[1]][["ymax"]] + 0.035, label = stats_table_a$sig_letters, size = 3, color = "black", inherit.aes = FALSE) +
+  geom_vline(xintercept = c(1.5,2.5,3.5,4.5), linetype = "dashed", alpha = 0.25)
+
+
+data_plot_b = data_plot_b + geom_text(data = tibble(test = 1:20), x = stats_a[["data"]][[1]][["x"]], y = stats_b[["data"]][[1]][["ymax"]] + 0.015, label = stats_table_b$sig_letters, size = 3, color = "black", inherit.aes = FALSE) +
+  geom_vline(xintercept = c(1.5,2.5,3.5,4.5), linetype = "dashed", alpha = 0.25)
+
+
+data_plot_total = data_plot_total + geom_text(data = tibble(test = 1:20), x = stats_a[["data"]][[1]][["x"]], y = stats_total[["data"]][[1]][["ymax"]] + 0.075, label = stats_table_total$sig_letters, size = 3, color = "black", inherit.aes = FALSE) +
+  geom_vline(xintercept = c(1.5,2.5,3.5,4.5), linetype = "dashed", alpha = 0.25)
+
+
+all_plots = c(data_plot_a, data_plot_b, data_plot_total)
+lipase_supp = ggarrange(data_plot_a, data_plot_b, ncol = 2, nrow = 1, common.legend = FALSE)
+print(lipase_supp)
+```
+
+```{r Print figures, include=FALSE, eval=FALSE}
+ggsave("chlorophyll_lipase.pdf", plot = data_plot_total, units = "in", width = 4,
+  height = 3.25)
+
+ggsave("chlorophyll_lipase_supp.pdf", plot = lipase_supp , units = "in", width = 8,
+   height = 3.25)
+```
+
