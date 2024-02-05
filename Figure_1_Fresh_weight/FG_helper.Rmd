@@ -76,7 +76,7 @@ helper_pooled_bar <- ggplot(data = fresh_weight3, aes(x = Line_mean, y = Fresh_w
   scale_shape_manual(values = unique(fresh_weight2$shapes)) +
   labs(y = "Normalized fresh weight", x = "Line") +
   dlab_theme +
-  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_adrs", "SETI_helperless", "SETI_nrgs", "Col-0"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("nrgs")), expression("Col-0"))) +
+  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrgs", "Col-0"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")),  expression("SETI" ~ italic("nrg1s")), expression("Col-0"))) +
   scale_y_continuous(expand = c(0,0), limits = c(0,1.3)) 
 
 print(helper_pooled_bar)
@@ -156,8 +156,8 @@ activity_treatment = aov(Fresh_weight~ Line*Treatment + Batch, data = fresh_weig
 print(summary(activity_treatment))
 LSD_result <- LSD.test(activity_treatment, c("Treatment", "Line"), alpha = 0.05)
 stats_table$Line_treatment = factor(row.names(LSD_result$groups), levels = c("M:SETI_wt", "E2:SETI_wt", "M:SETI_eds1",
-                                                                           "E2:SETI_eds1", "M:SETI_adrs", "E2:SETI_adrs",
-                                                                           "M:SETI_helperless", "E2:SETI_helperless",
+                                                                           "E2:SETI_eds1", "M:SETI_helperless", "E2:SETI_helperless",
+                                                                           "M:SETI_adrs", "E2:SETI_adrs",
                                                                            "M:SETI_nrgs", "E2:SETI_nrgs",
                                                                            "M:Col", "E2:Col"))
 stats_table$sig_letters = LSD_result$groups[[2]]
