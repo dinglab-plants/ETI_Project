@@ -52,7 +52,7 @@ col_fun(seq(-3, 3))
 
 selected_genes$cluster = factor(selected_genes$cluster)
 plot_heatmap = Heatmap(test2, name = "Log2(Fold Change)", col_fun, split = selected_genes$cluster, rect_gp = gpar(col = "black"), row_gap = unit(1.5, "mm"), show_parent_dend_line = FALSE, row_order = order(as.numeric(gsub("row", "", rownames(test)))),
-        row_labels = rownames(test), row_names_gp = gpar(fontsize = 8, fontface = "italic"), show_column_names = TRUE, column_names_rot = 45, column_order = c("SETI", "eds1", "pad4", "sag101", "pad4sag101"), column_labels = c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")), expression("SETI" ~ italic("pad4 sag101"))))
+        row_labels = rownames(test), row_names_gp = gpar(fontsize = 8, fontface = "italic"), show_column_names = TRUE, column_names_rot = -45, column_order = c("SETI", "eds1", "pad4", "sag101", "pad4sag101"), column_labels = c(expression("SETI_wt"), expression("SETI_" * italic("eds1")), expression("SETI_" * italic("pad4")), expression("SETI_" * italic("sag101")), expression("SETI_" * italic("pad4 sag101"))))
 
 plot_heatmap 
 ```
