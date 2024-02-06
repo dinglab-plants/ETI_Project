@@ -221,7 +221,7 @@ data_plot_total = data_plot_total + geom_text(data = tibble(test = 1:20), x = st
 
 
 all_plots = c(data_plot_a, data_plot_b, data_plot_total)
-lipase_supp = ggarrange(data_plot_a, data_plot_b, ncol = 2, nrow = 1, common.legend = FALSE)
+lipase_supp = ggarrange(data_plot_a, data_plot_b, data_plot_total, ncol = 2, nrow = 2, common.legend = FALSE)
 print(lipase_supp)
 ```
 
