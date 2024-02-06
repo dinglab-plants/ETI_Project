@@ -89,24 +89,24 @@ dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = 
         strip.text.x = element_text(size = 12, hjust = 0.5))
 
 
-# length(gene_list$contrast[gene_list$contrast == "sag101_WT.E-sag101_WT.mock" & gene_list$up.down == "up-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_p.E-sag101_p.mock" & gene_list$up.down == "up-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_s.E-sag101_s.mock" & gene_list$up.down == "up-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_ps.E-sag101_ps.mock" & gene_list$up.down == "up-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_e.E-sag101_e.mock" & gene_list$up.down == "up-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_WT.E-sag101_WT.mock" & gene_list$up.down == "down-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_p.E-sag101_p.mock" & gene_list$up.down == "down-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_s.E-sag101_s.mock" & gene_list$up.down == "down-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_ps.E-sag101_ps.mock" & gene_list$up.down == "down-regulated"])
-# length(gene_list$contrast[gene_list$contrast == "sag101_e.E-sag101_e.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_WT.E-SETI_WT.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_p.E-SETI_p.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_s.E-SETI_s.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_ps.E-SETI_ps.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_e.E-SETI_e.mock" & gene_list$up.down == "up-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_WT.E-SETI_WT.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_p.E-SETI_p.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_s.E-SETI_s.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_ps.E-SETI_ps.mock" & gene_list$up.down == "down-regulated"])
+# length(gene_list$contrast[gene_list$contrast == "SETI_e.E-SETI_e.mock" & gene_list$up.down == "down-regulated"])
 
-up_down_numbers = data.frame(lines = rep(c("sag101_WT.E-sag101_WT.mock",  "sag101_p.E-sag101_p.mock", "sag101_s.E-sag101_s.mock",
-                                       "sag101_ps.E-sag101_ps.mock", "sag101_e.E-sag101_e.mock"), 2), up_down = factor(rep(c("upregulated", "downregulated"), each = 5), levels = c("upregulated", "downregulated")), genenumbers = c(1902, 1707, 2281, 0, 0, 1044, 462, 1942, 0, 0))
+up_down_numbers = data.frame(lines = rep(c("SETI_WT.E-SETI_WT.mock",  "SETI_p.E-SETI_p.mock", "SETI_s.E-SETI_s.mock",
+                                       "SETI_ps.E-SETI_ps.mock", "SETI_e.E-SETI_e.mock"), 2), up_down = factor(rep(c("upregulated", "downregulated"), each = 5), levels = c("upregulated", "downregulated")), genenumbers = c(1902, 1707, 2281, 0, 0, 1044, 462, 1942, 0, 0))
 
 
 degs_count <- ggplot(data = up_down_numbers, aes(x = lines, y = genenumbers))+
   geom_bar(aes(fill = up_down), stat = "identity", position=position_dodge(), alpha = 0.75) +
-  scale_x_discrete(limits = c("sag101_WT.E-sag101_WT.mock", "sag101_e.E-sag101_e.mock", "sag101_ps.E-sag101_ps.mock", "sag101_p.E-sag101_p.mock", "sag101_s.E-sag101_s.mock"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")))) + scale_fill_manual(values = c("#F93D3D", "#0072B2"),
+  scale_x_discrete(limits = c("SETI_WT.E-SETI_WT.mock", "SETI_e.E-SETI_e.mock", "SETI_ps.E-SETI_ps.mock", "SETI_p.E-SETI_p.mock", "SETI_s.E-SETI_s.mock"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("pad4 sag101")), expression("SETI" ~ italic("pad4")), expression("SETI" ~ italic("sag101")))) + scale_fill_manual(values = c("#F93D3D", "#0072B2"),
                      name = "Expression change", labels = c("Upregulated DEGs", "Downregulated DEGs"))  +
   labs(y = "DEGs count", x = "Line") +
   geom_text(aes(y = genenumbers/2, label = c(1902, 1707, 2281, NA, NA, 1044, 462, 1942, NA, NA), group = up_down),  position=position_dodge(0.9), size = 2) +
