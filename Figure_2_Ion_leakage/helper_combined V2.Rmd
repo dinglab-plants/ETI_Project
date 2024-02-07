@@ -81,7 +81,6 @@ line_order = order(sig$Line, levels = c("SETI:m)", "SETI:E)", "SETIeds1:m)", "SE
                                      "SETIadr1:m)", "SETIadr1:E)", "SETInrg1:m)", "SETInrg1:E)"))
 sig_ordered = sig[line_order,]
 
-print(summary(activity_treatment2))
 print(Tuckey)
 print(test_value)
 
@@ -207,7 +206,7 @@ for (timepoints in unique(el12$Time[el12$Time != 24])) {
   
 print("--------------------------------------------------------------------------------------")
 print(timepoints)
-print(summary)
+print(summary(activity_treatment))
 print(Tuckey)
 print(stats)
 print("--------------------------------------------------------------------------------------")

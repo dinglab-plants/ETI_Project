@@ -205,6 +205,9 @@ test1_3 = ggplot_build(plot1_3)
 
 stats_table = data.frame(Line_treatment = NA,
                          sig_letters = NA, timepoint = NA)
+el12$batch = factor(el12$batch)
+el12$Line = factor(el12$Line)
+el12$Treatment = factor(el12$Treatment)
 
 for (timepoints in unique(el12$Time[el12$Time != 24])) {
   activity_treatment = aov(el12[el12$Time == timepoints,]$value ~ el12[el12$Time == timepoints,]$Line*el12[el12$Time == timepoints,]$Treatment + el12[el12$Time == timepoints,]$batch)
