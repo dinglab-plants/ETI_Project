@@ -20,10 +20,6 @@ library("ComplexHeatmap")
 library("circlize")
 library("ggpubr")
 library("stringr")
-library("r2r")
-library("ggalt")
-library("gridExtra")
-library("grid")
 ```
 
 

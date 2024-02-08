@@ -11,11 +11,7 @@ output: html_document
 library("ggplot2")
 library("tibble")
 library("tidyr")
-library("plyr")
 library("ggpubr")
-library("agricolae")
-library("ggbreak")
-library("scales")
 library("multcompView")
 ```
 

@@ -21,7 +21,6 @@ library("EnhancedVolcano")
 library("ggpubr")
 library("stringr")
 library("r2r")
-library("ggalt")
 ```
 
 ```{r function, include=FALSE, echo=FALSE}

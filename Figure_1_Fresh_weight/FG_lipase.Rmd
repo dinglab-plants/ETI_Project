@@ -11,17 +11,13 @@ editor_options:
 library("ggplot2")
 library("tibble")
 library("tidyr")
-library("plyr")
-library("ggpubr")
 library("agricolae")
-library("ggbreak")
-library("scales")
 library("multcompView")
-library("agricolae")
+
 ```
 ## Read Files
 ```{r read files, message=FALSE, warning=FALSE}
-fresh_weight <- read.csv2(file = "./Data/Fresh_weight_lipase_like.csv", header = TRUE, dec = ",", sep = ";", fileEncoding="UTF-8-BOM")[,1:3]
+fresh_weight <- read.csv2(file = "./Data/Fresh_weight_lipase_like_ratio.csv", header = TRUE, dec = ",", sep = ";", fileEncoding="UTF-8-BOM")[,1:3]
 fresh_weight$Fresh_weight<- as.numeric(as.character(fresh_weight$Fresh_weight))
 fresh_weight = as_tibble(fresh_weight)
 fresh_weight$Line = gsub("Col-0", "Col", fresh_weight$Line)
