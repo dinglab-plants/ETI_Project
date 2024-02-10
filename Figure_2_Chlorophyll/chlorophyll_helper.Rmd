@@ -78,7 +78,7 @@ data_plot_a = ggplot(data = chlorophyll, mapping = aes(x = Genotype, y = chla, f
    geom_jitter(mapping = aes(color = Treatment, group = Treatment), shape = 21, size=1.5, fill = "grey", position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
   scale_color_manual(values = c("black", "black", "black", "black")) +
   labs(y = "Chlorophyll a content\n(mg/g FW)", x = "Line") +
-  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs")))) + 
+  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s")))) + 
   dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
                     name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
 
@@ -88,7 +88,7 @@ data_plot_b = ggplot(data = chlorophyll, mapping = aes(x = Genotype, y = chlb, f
    geom_jitter(mapping = aes(color = Treatment, group = Treatment), shape = 21, fill = "grey", size=1.5, position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
   scale_color_manual(values = c("black", "black", "black", "black")) +
   labs(y = "Chlorophyll b content\n(mg/g FW)", x = "Line") +
-  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs")))) + dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
+  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s")))) + dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
                     name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
 
 data_plot_total = ggplot(data = chlorophyll, mapping = aes(x = Genotype, y = totalchl, fill = Treatment)) +
@@ -97,7 +97,7 @@ data_plot_total = ggplot(data = chlorophyll, mapping = aes(x = Genotype, y = tot
    geom_jitter(mapping = aes(color = Treatment, group = Treatment), shape = 21, fill = "grey", size=1.5, position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
   scale_color_manual(values = c("black", "black", "black", "black")) +
   labs(y = "Total chlorophyll content\n(mg/g FW)", x = "Line") +
-  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs")))) + dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
+  scale_x_discrete(limits = c("SETI_wt", "SETI_eds1", "SETI_helperless", "SETI_adrs", "SETI_nrg1s"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s")))) + dlab_theme + scale_fill_manual(values = c("#F93D3D", "#E69F00", "#0072B2", "#12A27B"),
                     name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
 
 all_plots = c(data_plot_a, data_plot_b, data_plot_total)
