@@ -98,10 +98,10 @@ plot1 = ggplot(bacteria1, mapping = aes(x = line, y = cfu)) +
                     name = "Treatment", labels = c("Mock", "ETI"))  +
   scale_shape_manual(name = "Batches", values = unique(bacteria1$batch_aes), labels = c("B1","B2","B3")) +
   #scale_shape_discrete(position = position_identity()) +
-  labs(y = expression(bold(atop("Bacteria Count",paste("(log(CFU/",cm^{"2"},"))")))), x = "Line") +
+  labs(y = expression(atop("Bacteria Count",paste("(log(CFU/",cm^{"2"},"))"))), x = "Line") +
   dlab_theme +
   facet_wrap(~as.factor(day)) +
-  scale_x_discrete(limits = c("SETI", "SETIeds1", "SETIhelperless", "SETIadrs", "SETInrg1"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs"))))
+  scale_x_discrete(limits = c("SETI", "SETIeds1", "SETIhelperless", "SETIadrs", "SETInrg1"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s"))))
 
 
 test = ggplot_build(plot1)
