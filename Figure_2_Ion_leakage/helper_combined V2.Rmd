@@ -128,7 +128,7 @@ plot1_4 = ggplot(el12[el12$Time == 24,], aes(y = value, x = Line))  +
                     name = "Treatment", labels = c("Mock", "ETI"))  +
   scale_shape_manual(values = unique(el12$shapes)) +
   scale_color_manual(values = c("black", "black")) +
-  labs(y = "Conductivity\n(µS/mm)", x = "Line") + dlab_theme +
+  labs(y = "Conductivity\n(µS/cm)", x = "Line") + dlab_theme +
   scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs"))))
 
 test = ggplot_build(plot1_4)
@@ -172,7 +172,7 @@ plot1_3 = ggplot(el12[el12$Time < 24,], aes(y = value, x = Line, fill = Treatmen
                     name = "Treatment", labels = c("Mock", "ETI"))  +
   scale_shape_manual(values = unique(el12$shapes)) +
   scale_color_manual(values = c("black", "black")) +
-  labs(y = "Conductivity\n[µS/mm]", x = "Line") + dlab_theme +
+  labs(y = "Conductivity\n[µS/cm]", x = "Line") + dlab_theme +
   scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs")))) +
   facet_wrap(.~Time, scales="free_y", labeller = labeller)
 
