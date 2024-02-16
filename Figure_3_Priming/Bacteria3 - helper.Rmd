@@ -77,7 +77,7 @@ dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = 
         axis.line = element_blank(),
         axis.ticks = element_line(size = 1),
         axis.title.x = element_blank(),
-        legend.position="bottom", 
+        legend.position="none", 
         legend.text= element_text(size = 12),
         legend.title = element_text(size = 12),
         panel.background = element_blank(),
