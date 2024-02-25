@@ -17,13 +17,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library("ggplot2")
 library("tibble")
 library("tidyr")
-library("plyr")
 library("ggpubr")
-library("agricolae")
-library("ggbreak")
-library("scales")
 library("multcompView")
 library("stringr")
+
 ```
 
 ## Read files
@@ -99,7 +96,7 @@ data_plot_b = ggplot(data = chlorophyll, mapping = aes(x = line, y = chlb, fill 
                     name = "Treatment", labels = c("Mock", "PTI", "ETI", "PTI + ETI")) 
 
 data_plot_total = ggplot(data = chlorophyll, mapping = aes(x = line, y = totalchl, fill = treatment)) +
-  ylim(0,1) +
+  ylim(0.2,1) +
   geom_boxplot()+
    geom_jitter(mapping = aes(color = treatment, group = treatment), shape = 21, fill = "grey", size=1.5, position = position_jitterdodge(jitter.width = 0, dodge.width = 0.75)) +
   scale_color_manual(values = c("black", "black", "black", "black")) +
@@ -221,7 +218,7 @@ data_plot_total = data_plot_total + geom_text(data = tibble(test = 1:20), x = st
 
 
 all_plots = c(data_plot_a, data_plot_b, data_plot_total)
-lipase_supp = ggarrange(data_plot_a, data_plot_b, ncol = 2, nrow = 1, common.legend = FALSE)
+lipase_supp = ggarrange(data_plot_a, data_plot_b, data_plot_total, ncol = 2, nrow = 2, common.legend = FALSE)
 print(lipase_supp)
 ```
 

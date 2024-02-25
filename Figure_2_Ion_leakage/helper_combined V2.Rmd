@@ -1,5 +1,5 @@
 ---
-title: "Ion_leakage_lipase"
+title: "Ion_leakage_helper"
 author: "HHN"
 date: "2023-11-18"
 output: html_document
@@ -11,11 +11,7 @@ output: html_document
 library("ggplot2")
 library("tibble")
 library("tidyr")
-library("plyr")
 library("ggpubr")
-library("agricolae")
-library("ggbreak")
-library("scales")
 library("multcompView")
 ```
 
@@ -81,7 +77,6 @@ line_order = order(sig$Line, levels = c("SETI:m)", "SETI:E)", "SETIeds1:m)", "SE
                                      "SETIadr1:m)", "SETIadr1:E)", "SETInrg1:m)", "SETInrg1:E)"))
 sig_ordered = sig[line_order,]
 
-print(summary(activity_treatment2))
 print(Tuckey)
 print(test_value)
 
@@ -133,8 +128,8 @@ plot1_4 = ggplot(el12[el12$Time == 24,], aes(y = value, x = Line))  +
                     name = "Treatment", labels = c("Mock", "ETI"))  +
   scale_shape_manual(values = unique(el12$shapes)) +
   scale_color_manual(values = c("black", "black")) +
-  labs(y = "Conductivity\n(µS/mm)", x = "Line") + dlab_theme +
-  scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs"))))
+  labs(y = "Conductivity\n(µS/cm)", x = "Line") + dlab_theme +
+  scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s"))))
 
 test = ggplot_build(plot1_4)
 
@@ -177,8 +172,8 @@ plot1_3 = ggplot(el12[el12$Time < 24,], aes(y = value, x = Line, fill = Treatmen
                     name = "Treatment", labels = c("Mock", "ETI"))  +
   scale_shape_manual(values = unique(el12$shapes)) +
   scale_color_manual(values = c("black", "black")) +
-  labs(y = "Conductivity\n[µS/mm]", x = "Line") + dlab_theme +
-  scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrgs")))) +
+  labs(y = "Conductivity\n(µS/cm)", x = "Line") + dlab_theme +
+  scale_x_discrete(breaks = c("SETI ", "SETI eds1", "SETI helperless", "SETI adr1", "SETI nrg1"), labels=c(expression("SETI wt"), expression("SETI" ~ italic("eds1")), expression("SETI" ~ italic("helperless")), expression("SETI" ~ italic("adr1s")), expression("SETI" ~ italic("nrg1s")))) +
   facet_wrap(.~Time, scales="free_y", labeller = labeller)
 
 test1_3 = ggplot_build(plot1_3)
@@ -207,7 +202,7 @@ for (timepoints in unique(el12$Time[el12$Time != 24])) {
   
 print("--------------------------------------------------------------------------------------")
 print(timepoints)
-print(summary)
+print(summary(activity_treatment))
 print(Tuckey)
 print(stats)
 print("--------------------------------------------------------------------------------------")
