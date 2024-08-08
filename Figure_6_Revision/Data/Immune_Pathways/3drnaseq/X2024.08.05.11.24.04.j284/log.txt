@@ -1,0 +1,99 @@
+3D RNA-seq log information (2024-08-05 11:24:04)
+##########################################################
+
+Many thanks for using our 3D RNA-seq shiny App o^_^o!
+If you have questions to raise or are experiencing difficulties using the 3D RNA-seq, please use:
+Github Issues: https://github.com/wyguo/ThreeDRNAseq/issues
+Group group: https://groups.google.com/forum/#!forum/3d-rna-seq-app-user-group
+
+Or contact us:
+Dr. Wenbin Guo: wenbin.guo@hutton.ac.uk
+Dr. Runxuan Zhang: runxuan.zhang@hutton.ac.uk
+
+Outputs are saved in: 
+/srv/3drnaseq/X2024.08.05.11.24.04.j284 
+/srv/3drnaseq/X2024.08.05.11.24.04.j284/data 
+/srv/3drnaseq/X2024.08.05.11.24.04.j284/figure 
+/srv/3drnaseq/X2024.08.05.11.24.04.j284/result 
+/srv/3drnaseq/X2024.08.05.11.24.04.j284/report 
+
+############################################################ 
+Page: Data generation (2024-08-05 11:24:54) 
+############################################################ 
+Loading metadata table ... (click "x" to close) (2024-08-05 11:25:21) 
+Loading metadata table -> Done!!! (2024-08-05 11:25:21) 
+
+Loading metadata table ... (click "x" to close) (2024-08-05 11:29:23) 
+Loading metadata table -> Done!!! (2024-08-05 11:29:23) 
+
+Loading transcript-gene mapping... (click "x" to close) (2024-08-05 11:29:38) 
+Loading transcript-gene mapping -> Done!!! (2024-08-05 11:29:38) 
+
+Unzip quantification zipped file ... (click "x" to close) (2024-08-05 11:31:34) 
+Unzip quantification zipped file -> Done!!! (2024-08-05 11:31:36) 
+
+Condition SETI_WT.PTI_ETI, NA, NA, ...  have only one biological replicate. Please double the experimental design. (click "x" to close) (2024-08-05 11:31:40) 
+Generating expression, please wait until this step done ... (click "x" to close) (2024-08-05 11:31:55) 
+Verifying transcript names... (click "x" to close) (2024-08-05 11:31:55) 
+reading in files with read_tsv
+1 
+Verifying transcript names -> Done!!! (click "x" to close) (2024-08-05 11:31:56) 
+
+Generate gene expression... (click "x" to close) (2024-08-05 11:31:56) 
+reading in files with read_tsv
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 
+transcripts missing from tx2gene: 72690
+summarizing abundance
+summarizing counts
+summarizing length
+Generate gene expression -> Done!!! (click "x" to close) (2024-08-05 11:32:01) 
+
+Generate transcript expression... (click "x" to close) (2024-08-05 11:32:01) 
+reading in files with read_tsv
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 
+Generate transcript expression -> Done!!! (click "x" to close) (2024-08-05 11:32:07) 
+
+############################################################ 
+Page: Data pre-processing (2024-08-05 11:32:12) 
+############################################################ 
+Filter low expression ... (click "x" to close) (2024-08-05 11:32:19) 
+Filter low expression -> Done!!! (2024-08-05 11:32:19) 
+
+Filter low expression ... (click "x" to close) (2024-08-05 11:32:25) 
+Filter low expression -> Done!!! (2024-08-05 11:32:25) 
+
+Filter low expression ... (click "x" to close) (2024-08-05 11:32:40) 
+Filter low expression -> Done!!! (2024-08-05 11:32:40) 
+
+############################################################ 
+Page: Data generation (2024-08-05 11:32:49) 
+############################################################ 
+Generating expression, please wait until this step done ... (click "x" to close) (2024-08-05 11:33:10) 
+Verifying transcript names... (click "x" to close) (2024-08-05 11:33:10) 
+reading in files with read_tsv
+1 
+Verifying transcript names -> Done!!! (click "x" to close) (2024-08-05 11:33:10) 
+
+Generate gene expression... (click "x" to close) (2024-08-05 11:33:10) 
+reading in files with read_tsv
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 
+transcripts missing from tx2gene: 72690
+summarizing abundance
+summarizing counts
+summarizing length
+Generate gene expression -> Done!!! (click "x" to close) (2024-08-05 11:33:13) 
+
+Generate transcript expression... (click "x" to close) (2024-08-05 11:33:13) 
+reading in files with read_tsv
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 
+Generate transcript expression -> Done!!! (click "x" to close) (2024-08-05 11:33:18) 
+
+############################################################ 
+Page: Data pre-processing (2024-08-05 11:34:01) 
+############################################################ 
+Filter low expression ... (click "x" to close) (2024-08-05 11:34:08) 
+Filter low expression -> Done!!! (2024-08-05 11:34:08) 
+
+############################################################ 
+Page: Data generation (2024-08-05 11:36:40) 
+############################################################ 

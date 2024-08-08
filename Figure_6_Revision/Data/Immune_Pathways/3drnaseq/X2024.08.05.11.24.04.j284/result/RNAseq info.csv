@@ -1,0 +1,10 @@
+"Description","Number"
+"Raw transcripts",81620
+"Raw genes",33681
+"Samples",60
+"Samples after merging seq-reps",60
+"Condition of interest",20
+"CPM cut-off",1
+"Min samples to CPM cut-off",3
+"Expressed transcripts",40568
+"Expressed genes",18809
