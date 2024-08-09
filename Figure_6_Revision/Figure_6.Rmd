@@ -1,0 +1,220 @@
+---
+title: "RNA-seq Analysis Revision"
+author: "HHN"
+date: "2024-08-09"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install R libraries for Go-term visualization
+
+```{r Libraries, include=FALSE, echo=FALSE}
+library("ComplexUpset")
+library("EnhancedVolcano")
+library("ggpubr")
+library("stringr")
+library("r2r")
+```
+
+```{r function, include=FALSE, echo=FALSE}
+upset_plot_reorder = function(data_list, line_treatment, line_treatment_list){
+for (gene_id in data_list$target) {
+  for (lines in line_treatment) {
+    if(lines %in% data_list[data_list$target == gene_id, "contrast"]){
+      line_treatment_list[[lines]] = append(line_treatment_list[[lines]],1)
+    }else{
+      line_treatment_list[[lines]] = append(line_treatment_list[[lines]],0)
+    }
+  }
+}
+  return(line_treatment_list)
+}
+
+outersect <- function(x, y) {
+  sort(c(setdiff(x, y),
+         setdiff(y, x)))
+}
+```
+
+
+# Go Clusters of downregulated Genes
+## Read Files
+
+```{r Read files}
+cluster_01 = read.csv2(file = "./Data/GO for clusters/cluster1_gProfiler_athaliana_11-12-2023_8-16-10 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_03 = read.csv2(file = "./Data/GO for clusters/cluster3_gProfiler_athaliana_11-12-2023_8-04-39 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_06 = read.csv2(file = "./Data/GO for clusters/cluster6_gProfiler_athaliana_11-12-2023_8-17-16 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_09 = read.csv2(file = "./Data/GO for clusters/cluster9_gProfiler_athaliana_11-12-2023_8-44-49 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+
+cluster_1_terms = c("membrane", "transmembrane transporter activity", "lipase activity", "regulation of biological process", 
+                    "response to hormone", "positive regulation of cellular process", "response to stress", "signal transduction",
+                    "cellular response to chemical stimulus", "auxin-activated signaling pathway", "response to abscisic acid",
+                    "oligosaccharide metabolic process", "sucrose metabolic process", "inositol metabolic process", "response to stimulus")
+
+cluster_3_terms = c("plant-type vacuole", "DNA-binding transcription factor activity", "transporter activity", "MAP kinase activity",
+                    "nucleic acid metabolic process", "response to stress", "response to endogenous stimulus","protein ubiquitination",
+                    "rhythmic process", "regulation of carbohydrate biosynthetic process", "regulation of plant organ morphogenesis",
+                    "regulation of defense response to bacterium", "trehalose metabolism in response to stress", "cellular response to blue light",
+                    "negative regulation of hormone metabolic process")
+
+cluster_6_terms = c("plasma membrane","NAD(P)H dehydrogenase complex (plastoquinone)", "DNA-binding transcription factor activity", 
+                    "monooxygenase activity", "regulation of cellular process", "regulation of metabolic process", "aromatic compound biosynthetic process", "response to auxin", "chloroplast organization", "response to gibberellin", "response to blue light", "photomorphogenesis", "fucose metabolic process", "chloroplast RNA modification", "UDP-xylose transmembrane transport")
+  
+cluster_9_terms = c("chloroplast", "plasma membrane", "photosystem II", "catalytic activity", "electron transporter, transferring electrons within the cyclic electron transport pathway of photosynthesis activity", "cellular process", "metabolic process", "photosynthesis", "leaf development", "carbohydrate catabolic process", "polysaccharide catabolic process", "chlorophyll metabolic process", "plastid localization","carbon fixation", "starch biosynthetic process")
+
+# Filter for selected terms and reorder them
+cluster_01 = cluster_01[cluster_01$term_name %in% cluster_1_terms,]
+cluster_01$term_name = factor(cluster_01$term_name, levels = cluster_01$term_name[order(cluster_01$negative_log10_of_adjusted_p_value)])
+cluster_01$term_ratio = paste(cluster_01$intersection_size, cluster_01$term_size, sep = "/")
+
+# Filter for selected terms and reorder them
+cluster_03 = cluster_03[cluster_03$term_name %in% cluster_3_terms,]
+cluster_03$term_name = factor(cluster_03$term_name, levels = cluster_03$term_name[order(cluster_03$negative_log10_of_adjusted_p_value)])
+cluster_03$term_ratio = paste(cluster_03$intersection_size, cluster_03$term_size, sep = "/")
+
+#cluster_9_terms[!(cluster_9_terms %in% cluster_09$term_name)]
+
+# Filter for selected terms and reorder them
+cluster_06 = cluster_06[cluster_06$term_name %in% cluster_6_terms,]
+cluster_06$term_name = factor(cluster_06$term_name, levels = cluster_06$term_name[order(cluster_06$negative_log10_of_adjusted_p_value)])
+cluster_06$term_ratio = paste(cluster_06$intersection_size, cluster_06$term_size, sep = "/")
+
+# Filter for selected terms and reorder them
+cluster_09 = cluster_09[cluster_09$term_name %in% cluster_9_terms,]
+cluster_09$term_name[cluster_09$term_name == "electron transporter, transferring electrons within the cyclic electron transport pathway of photosynthesis activity"] = "electron transporter, transferring electrons within cyclic electron transport pathway..."
+cluster_09$term_name = factor(cluster_09$term_name, levels = cluster_09$term_name[order(cluster_09$negative_log10_of_adjusted_p_value)])
+cluster_09$term_ratio = paste(cluster_09$intersection_size, cluster_09$term_size, sep = "/")
+
+
+
+```
+
+```{r Go_cluster_gene_dependancy}
+
+dlab_theme = theme(text = element_text(size=5), axis.text = element_text(size=5),
+        axis.text.x = element_text(size = 5, face = "bold", colour = "black"),
+        axis.text.y = element_text(color = "black", angle = 0, hjust = 1),
+        #axis.line = element_line(size = 1, linetype = "solid"),
+        axis.ticks = element_line(size = 1),
+        axis.title.y = element_blank(),
+        legend.position="none",
+        legend.text= element_text(size = 5),
+        #legend.title = element_text(size = 16, face = "bold"),
+        panel.background = element_blank(),
+        #panel.spacing.x = unit(1, "lines"),
+        #panel.spacing.y=unit(0,"lines"),
+        #panel.grid =  element_blank(),
+        panel.grid.major.x =  element_line(colour = "#999999", linetype = "solid"),
+        panel.grid.minor.x =  element_line(colour = "#CCCCCC", linetype = "solid"),
+        panel.grid.major.y =  element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        strip.background =element_rect(fill="#6495ED"),
+        plot.margin = margin(10,10,0,0),
+        strip.text.x = element_text(size = 5, face = "bold", hjust = 0.5))
+
+
+cluster1_plot = ggplot(cluster_01, mapping = aes(x = term_name, y = negative_log10_of_adjusted_p_value)) +
+  geom_bar(aes(fill = source), stat = "identity") +
+  geom_text(aes(label = term_ratio, y = negative_log10_of_adjusted_p_value + 2.5), size = 1.5) + 
+  ylab("-Log10(FDR)") +
+  dlab_theme +
+  coord_flip() +
+  facet_grid(rows = vars(source), scales = 'free_y', space = "free_y", drop = TRUE) +
+  scale_x_discrete(breaks = cluster_01$term_name, labels = toupper(str_wrap(as.character(cluster_01$term_name), width = 25))) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,30))
+
+cluster3_plot = ggplot(cluster_03, mapping = aes(x = term_name, y = negative_log10_of_adjusted_p_value)) +
+  geom_bar(aes(fill = source), stat = "identity") +
+  geom_text(aes(label = term_ratio, y =  negative_log10_of_adjusted_p_value+ 2.5), size = 1.5) + 
+  ylab("-Log10(FDR)") +
+  dlab_theme +
+  coord_flip() +
+  facet_grid(rows = vars(source), scales = 'free_y', space = "free_y", drop = TRUE) +
+  scale_x_discrete(breaks = cluster_03$term_name, labels = toupper(str_wrap(as.character(cluster_03$term_name), width = 25)))+
+  scale_y_continuous(expand = c(0,0), limits = c(0,30))
+
+cluster6_plot = ggplot(cluster_06, mapping = aes(x = term_name, y = negative_log10_of_adjusted_p_value)) +
+  geom_bar(aes(fill = source), stat = "identity") +
+  geom_text(aes(label = term_ratio, y = negative_log10_of_adjusted_p_value+ 2.5), size = 1.5) + 
+  ylab("-Log10(FDR)") +
+  dlab_theme +
+  coord_flip() +
+  facet_grid(rows = vars(source), scales = 'free_y', space = "free_y", drop = TRUE) +
+  scale_x_discrete(breaks = cluster_06$term_name, labels = toupper(str_wrap(as.character(cluster_06$term_name), width = 25)))+
+  scale_y_continuous(expand = c(0,0), limits = c(0,30))
+
+cluster9_plot = ggplot(cluster_09, mapping = aes(x = term_name, y = negative_log10_of_adjusted_p_value)) +
+  geom_bar(aes(fill = source), stat = "identity") +
+  geom_text(aes(label = term_ratio, y = negative_log10_of_adjusted_p_value+ 2.5), size = 1.5) + 
+  ylab("-Log10(FDR)") +
+  dlab_theme +
+  coord_flip() +
+  facet_grid(rows = vars(source), scales = 'free_y', space = "free_y", drop = TRUE) +
+  scale_x_discrete(breaks = cluster_09$term_name, labels = toupper(str_wrap(as.character(cluster_09$term_name), width = 25)))+
+  scale_y_continuous(expand = c(0,0), limits = c(0,55))
+
+ggsave("cluster1.pdf", plot = cluster1_plot , units = "in", width = 4,
+  height = 3.25)
+ggsave("cluster3.pdf", plot = cluster3_plot, units = "in", width = 4,
+  height = 3.25)
+ggsave("cluster6.pdf", plot = cluster6_plot , units = "in", width = 4,
+  height = 3.25)
+ggsave("cluster9.pdf", plot = cluster9_plot , units = "in", width = 4,
+  height = 3.25)
+
+Down_Cluster = ggarrange(cluster1_plot, cluster3_plot, cluster6_plot, cluster9_plot, labels = c("Cluster 1", "Cluster 3", "Cluster 6", "Cluster 9"), hjust = -0.1, vjust = 1)
+ggsave("Down_Cluster.pdf", plot = Down_Cluster , units = "in", width = 8, height = 6.5)
+```
+
+
+## Upset Plot
+
+You can also embed plots, for example:
+
+```{r Upset Plot, echo=TRUE}
+gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2024.08.05.11.24.04.j284/result/Significant DE genes list and statistics.csv", sep = ",", dec = ".", header = TRUE)
+gene_list = gene_list[gene_list$contrast %in% c("SETI_WT.E-SETI_WT.mock", "SETI_WT.P-SETI_WT.mock", "SETI_WT.PE-SETI_WT.mock"),]
+
+upregulated = gene_list[gene_list$up.down == "up-regulated", ]
+downregulated = gene_list[gene_list$up.down == "down-regulated", ]
+
+line_treatment = c("SETI_WT.E-SETI_WT.mock", "SETI_WT.P-SETI_WT.mock", "SETI_WT.PE-SETI_WT.mock")
+line_treatment_list = list("SETI_WT.E-SETI_WT.mock" = NULL, "SETI_WT.P-SETI_WT.mock" =  NULL, "SETI_WT.PE-SETI_WT.mock" =  NULL)
+
+upregulated_list = upset_plot_reorder(upregulated, line_treatment, line_treatment_list)
+upset_plot_up = data.frame(genes = upregulated$target, ETI = upregulated_list[["SETI_WT.E-SETI_WT.mock"]], PTI = upregulated_list[["SETI_WT.P-SETI_WT.mock"]], PTI_plus_ETI = upregulated_list[["SETI_WT.PE-SETI_WT.mock"]])
+
+upset_plot_up = upset_plot_up[!duplicated(upset_plot_up$genes),]
+upset(upset_plot_up, colnames(upset_plot_up)[1:4])
+
+var.lab3 = c(
+  "PTI" = "PTI",
+  "ETI" = "ETI",
+  "PTI_plus_ETI" = "PTI + ETI")[sort(1:3, decreasing = TRUE)]
+
+vlabeller <- function (variable, value) {
+  return(var.lab3[value])
+}
+
+upset_plot_up = upset_plot_up[,c(1, sort(2:4, decreasing = TRUE))]
+
+upset_up_plot = upset(upset_plot_up, colnames(upset_plot_up[,2:4]), name='Lines', width_ratio=0.1, labeller= vlabeller, sort_sets=FALSE, set_sizes=FALSE, themes=upset_default_themes(text=element_text(size=8))) + ggtitle('Intersection of upregulated DEGs')
+
+pdf(file="upset_plot_up.pdf",
+    width = 4,
+  height = 3.25)
+upset_up_plot
+dev.off()
+
+```
