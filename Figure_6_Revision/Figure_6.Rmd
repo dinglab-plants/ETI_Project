@@ -331,13 +331,14 @@ gene_terms = c(names(representative1), names(representative2), names(representat
 
 representative_genes = data.frame(Gene_ID = gene_id , term_name = gene_terms)
 representative_genes = cbind(representative_genes, full_gene_list[match(representative_genes$Gene_ID, row.names(full_gene_list)), c("SETI_WT.E.SETI_WT.mock", "SETI_p.E.SETI_p.mock", "SETI_s.E.SETI_s.mock", "SETI_ps.E.SETI_ps.mock")])
-colnames(representative_genes)[3:6] = c("SETI", "PAD4", "SAG101", "pad4 sag101")
-fig_table = representative_genes[,c("Gene_ID", "SETI", "PAD4", "SAG101")]
+colnames(representative_genes)[3:6] = c("SETI", "PAD4", "SAG101", "PAD4 SAG101")
+fig_table = representative_genes[,c("Gene_ID", "SETI", "PAD4", "SAG101", "PAD4 SAG101")]
 fig_table = fig_table[!duplicated(fig_table$Gene_ID),]
 #fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)) |
 #                        ((fig_table$SETI > fig_table$PAD4) & (fig_table$SAG101 > fig_table$PAD4)),]
 fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)),]
 
+write.csv2(fig_table, "table.csv")
 ```
 
 ```{r Table Figure, echo=TRUE}
@@ -434,7 +435,23 @@ table_1 = tab_style(table_1,
       weight = px(1.5),
       style = "solid"
     ),
-    locations = cells_stub()) 
+    locations = cells_column_labels()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stubhead())  |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_row_groups()) 
     
   
 
@@ -449,7 +466,7 @@ table_1_1 = data_color(table_1,
   palette = colfunc(8),
   domain = c(-5, 5))
 
-colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73" ))
+colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73", "#f5a573" ))
 table_1_2 = data_color(table_1, 
   columns = everything(),
   rows = everything(),
@@ -459,6 +476,7 @@ table_1_2 = data_color(table_1,
   direction = "row",
   palette = colfunc(4))
 
-
+gtsave(table_1_1, "table_1_1.html")
+gtsave(table_1_2, "table_1_2.html")
 ```
 
