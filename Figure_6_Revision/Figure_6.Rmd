@@ -23,6 +23,8 @@ library("stringr")
 library("r2r")
 library("gt")
 library("ComplexUpset")
+library("tibble")
+library("tidyr")
 ```
 
 ```{r function, include=FALSE, echo=FALSE}
@@ -217,14 +219,21 @@ upset_up_plot = upset(upset_plot_up, colnames(upset_plot_up[,c(4,3,2)]), name='L
 write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
            file = "ETI_Specific_Genes.csv")
 
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
+           file = "PTI_Specific_Genes.csv")
+
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
+           file = "PTI_plus_ETIPTI_Specific_Genes.csv")
+
+
 
 Genes = length(upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"])
 
-pdf(file="upset_plot_up.pdf",
-    width = 4,
-  height = 3.25)
-upset_up_plot
-dev.off()
+# pdf(file="upset_plot_up.pdf",
+#     width = 4,
+#   height = 3.25)
+# upset_up_plot
+# dev.off()
 
 ```
 
@@ -480,3 +489,128 @@ gtsave(table_1_1, "table_1_1.html")
 gtsave(table_1_2, "table_1_2.html")
 ```
 
+# Immune Pathways
+
+Involvement of CNGCs in PTI, ETI and PTI + ETI
+```{r Table Figure, echo=TRUE}
+immune_pathway_full_list =  tibble(read.csv2("Immune_pathway_genes.csv")[,c(-1,-4)])
+immune_pathway_full_list$contrast = factor(immune_pathway_full_list$contrast)
+immune_pathway_full_list = pivot_wider(immune_pathway_full_list, names_from = contrast, names_expand = TRUE, values_from = c(log2FC))
+immune_pathway_full_list = immune_pathway_full_list[,c("target", "SETI_WT.E-SETI_WT.mock",  "SETI_WT.P-SETI_WT.mock","SETI_WT.PE-SETI_WT.mock")]
+
+names(immune_pathway_full_list) = c("Gene_ID", "PTI", "ETI", "PTI + ETI")
+
+cngcs_id = read.csv2("./Data/Representative_Genes/CNGCs.csv")
+cngc_list = cbind(cngcs_id, immune_pathway_full_list[match(cngcs_id$Gene_ID, immune_pathway_full_list$Gene_ID),])
+
+fig_table = cngc_list[,c("Gene_Name", "PTI", "ETI", "PTI + ETI")]
+fig_table = fig_table[order(fig_table$ETI),]
+
+fig_table = na.omit(fig_table)
+
+table_1 = gt(fig_table, rowname_col = "Gene_Name")|> 
+  tab_row_group( 
+    label = "CNGCs",
+    rows = fig_table$Gene_Name,
+    ) |>
+  tab_stubhead(label = "Gene ID")
+
+table_1 = tab_style(table_1,
+    style = cell_text(align = "center"),
+    locations = cells_row_groups()
+  )
+
+table_1 = tab_style(table_1,
+    style = cell_text(align = "center"),
+    locations = cells_column_labels() 
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_column_labels()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_stubhead()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_column_labels()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stubhead())  |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_row_groups()) 
+    
+  
+
+colfunc = colorRampPalette(c("#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573"))
+
+table_1_1 = data_color(table_1, 
+  columns = everything(),
+  rows = everything(),
+  method = c("bin"),
+  bins = c(-6, -3, -0.5, 0.5, 3, 6),
+  quantiles = 20,
+  palette = colfunc(8),
+  domain = c(-6, 6))
+
+colfunc = colorRampPalette(c("#5c6cfa","white", "#f5a573" ))
+table_1_2 = data_color(table_1, 
+  columns = everything(),
+  rows = everything(),
+  direction = "row",
+  palette = colfunc(4))
+
+gtsave(table_1_1, "CNGC_log2F_absolute_values.html")
+gtsave(table_1_2, "CNGC_log2F_comparison.html")
+
+```
