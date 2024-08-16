@@ -21,6 +21,8 @@ library("EnhancedVolcano")
 library("ggpubr")
 library("stringr")
 library("r2r")
+library("gt")
+library("ComplexUpset")
 ```
 
 ```{r function, include=FALSE, echo=FALSE}
@@ -180,7 +182,7 @@ ggsave("Down_Cluster.pdf", plot = Down_Cluster , units = "in", width = 8, height
 
 ## Upset Plot
 
-You can also embed plots, for example:
+This is an Upset plot for differentiating PTI, ETI, PTI + ETI specific and overlapping genes.
 
 ```{r Upset Plot, echo=TRUE}
 gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2024.08.05.11.24.04.j284/result/Significant DE genes list and statistics.csv", sep = ",", dec = ".", header = TRUE)
@@ -207,9 +209,16 @@ vlabeller <- function (variable, value) {
   return(var.lab3[value])
 }
 
-upset_plot_up = upset_plot_up[,c(1, sort(2:4, decreasing = TRUE))]
+upset_plot_up = upset_plot_up[,c(1,3,2,4)]
 
-upset_up_plot = upset(upset_plot_up, colnames(upset_plot_up[,2:4]), name='Lines', width_ratio=0.1, labeller= vlabeller, sort_sets=FALSE, set_sizes=FALSE, themes=upset_default_themes(text=element_text(size=8))) + ggtitle('Intersection of upregulated DEGs')
+upset_up_plot = upset(upset_plot_up, colnames(upset_plot_up[,c(4,3,2)]), name='Lines', width_ratio=0.1, labeller= vlabeller, sort_sets=FALSE, set_sizes=FALSE, themes=upset_default_themes(text=element_text(size=8))) + ggtitle('Intersection of upregulated DEGs')
+
+# ETI specific genes
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
+           file = "ETI_Specific_Genes.csv")
+
+
+Genes = length(upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"])
 
 pdf(file="upset_plot_up.pdf",
     width = 4,
@@ -218,3 +227,238 @@ upset_up_plot
 dev.off()
 
 ```
+
+
+# Figure 5
+## Read Files
+
+```{r Read files}
+gene_list = read.csv2(file = "./Data/Downregulated_ETI/Significant DE genes list and statistics.csv", sep = ",", dec = ".",
+                      header = TRUE)
+gene_list = gene_list[gene_list$contrast != "SETI_p.E-SETI_s.E" & gene_list$contrast != "SETI_p.E-SETI_WT.E"
+          & gene_list$contrast != "SETI_s.E-SETI_WT.E", ]
+gene_list$contrast = factor(gene_list$contrast)
+
+full_gene_list = read.csv("./Data/Downregulated_ETI/Full_geneslist_logF2.csv", sep = ";", dec = ".", header = TRUE, row.names = 1)
+```
+
+
+## Upset Plot Downregulated Genes
+
+Same dataset as figure 5 but with downregulated genes differentiating PAD4, SAG101 and EDS1 dependent ETI genes
+
+```{r Upset Plot (Downregulated), echo=TRUE}
+
+
+
+upregulated = gene_list[gene_list$up.down == "up-regulated", ]
+downregulated = gene_list[gene_list$up.down == "down-regulated", ]
+
+line_treatment = c("SETI_WT.E-SETI_WT.mock", "SETI_p.E-SETI_p.mock", "SETI_s.E-SETI_s.mock", "SETI_ps.E-SETI_ps.mock", "SETI_e.E-SETI_e.mock")
+line_treatment_list = list("SETI_WT.E-SETI_WT.mock" = NULL, "SETI_p.E-SETI_p.mock" =  NULL, "SETI_s.E-SETI_s.mock" =  NULL, "SETI_ps.E-SETI_ps.mock" =  NULL,  "SETI_e.E-SETI_e.mock" =  NULL)
+
+downregulated_list = upset_plot_reorder(downregulated, line_treatment, line_treatment_list)
+upset_plot_down = data.frame(genes = downregulated$target, SETI = downregulated_list[["SETI_WT.E-SETI_WT.mock"]], PAD4 = downregulated_list[["SETI_p.E-SETI_p.mock"]], SAG101 = downregulated_list[["SETI_s.E-SETI_s.mock"]], PAD4SAG101 = downregulated_list[["SETI_ps.E-SETI_ps.mock"]],
+                           EDS1 = downregulated_list[["SETI_e.E-SETI_e.mock"]])
+
+upset_plot_down = upset_plot_down[!duplicated(upset_plot_down$genes),]
+write.csv2(downregulated[downregulated$contrast == "SETI_WT.E-SETI_WT.mock",], file = "SETI_downregulated")
+
+upset(upset_plot_down, colnames(upset_plot_down)[2:6])
+
+var.lab3 = c(
+  "SETI" = bquote(bold("SETI wt")),
+  "PAD4" = expression(bold("SETI") ~ bolditalic("pad4")),
+  "SAG101" = expression(bold("SETI") ~ bolditalic("sag101")), 
+  "PAD4SAG101" = expression(bold("SETI") ~ bolditalic("pad4 sag101")),
+  "EDS1" = expression(bold("SETI") ~ bolditalic("eds1")))[sort(1:5, decreasing = TRUE)]
+
+
+vlabeller <- function (variable, value) {
+  return(var.lab3[value])
+}
+
+upset_plot_down = upset_plot_down[,c(1, sort(2:6, decreasing = TRUE))]
+
+upset_up_plot = upset(upset_plot_down, colnames(upset_plot_down[,2:6]), name='Lines', width_ratio=0.1, labeller= vlabeller, sort_sets=FALSE, set_sizes=FALSE, themes=upset_default_themes(text=element_text(size=8))) + ggtitle('Intersection of downregulated DEGs')
+
+Genes = length(upset_plot_down[upset_plot_down$PAD4 == 0 & upset_plot_down$SAG101 == 1 & upset_plot_down$SETI == 0 & upset_plot_down$EDS1 == 0
+                               & upset_plot_down$PAD4SAG101 == 0, "genes"])
+
+# pdf(file="upset_plot_down.pdf",
+#     width = 4,
+#   height = 3.25)
+# upset_up_plot
+# dev.off()
+
+```
+
+# Representative Genes
+
+```{r Read_Clusters, echo=TRUE}
+
+cluster_01 = read.csv2(file = "./Data/GO for clusters/cluster1_gProfiler_athaliana_11-12-2023_8-16-10 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_03 = read.csv2(file = "./Data/GO for clusters/cluster3_gProfiler_athaliana_11-12-2023_8-04-39 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_06 = read.csv2(file = "./Data/GO for clusters/cluster6_gProfiler_athaliana_11-12-2023_8-17-16 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+cluster_09 = read.csv2(file = "./Data/GO for clusters/cluster9_gProfiler_athaliana_11-12-2023_8-44-49 PM__intersections.csv", sep = ",", dec = ".",
+                      header = TRUE)
+
+string_transpose = function(cluster, term){
+  representative = str_split_1(cluster$intersections[cluster$term_name == term], ",")
+  representative = setNames(representative, rep(term, length(representative)))
+  return(representative)
+}
+
+representative1 = str_split_1(cluster_01$intersections[cluster_01$term_name == "response to abscisic acid"], ",")
+representative1 = setNames(representative1, rep("response to abscisic acid", length(representative1)))
+representative2 = str_split_1(cluster_01$intersections[cluster_01$term_name == "auxin-activated signaling pathway"], ",")
+representative2 = setNames(representative2, rep("auxin-activated signaling pathway", length(representative2)))
+
+representative3 = string_transpose(cluster_03, "carbohydrate biosynthetic process")
+representative4 = string_transpose(cluster_03, "regulation of plant organ morphogenesis")
+
+representative5 = string_transpose(cluster_06, "response to auxin")
+representative6 = string_transpose(cluster_06, "response to gibberellin")
+
+representative7 = string_transpose(cluster_09, "photosynthesis")
+representative8 = string_transpose(cluster_09, "leaf development")
+
+gene_id = c(representative1, representative2, representative3, representative4, representative5, representative6, representative7, representative8)
+gene_terms = c(names(representative1), names(representative2), names(representative3), names(representative4), names(representative5), names(representative6), names(representative7), names(representative8))
+
+representative_genes = data.frame(Gene_ID = gene_id , term_name = gene_terms)
+representative_genes = cbind(representative_genes, full_gene_list[match(representative_genes$Gene_ID, row.names(full_gene_list)), c("SETI_WT.E.SETI_WT.mock", "SETI_p.E.SETI_p.mock", "SETI_s.E.SETI_s.mock", "SETI_ps.E.SETI_ps.mock")])
+colnames(representative_genes)[3:6] = c("SETI", "PAD4", "SAG101", "pad4 sag101")
+fig_table = representative_genes[,c("Gene_ID", "SETI", "PAD4", "SAG101")]
+fig_table = fig_table[!duplicated(fig_table$Gene_ID),]
+#fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)) |
+#                        ((fig_table$SETI > fig_table$PAD4) & (fig_table$SAG101 > fig_table$PAD4)),]
+fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)),]
+
+```
+
+```{r Table Figure, echo=TRUE}
+
+table_1 = gt(fig_table, rowname_col = "Gene_ID")|> 
+  tab_row_group( 
+    label = "ABA Genes",
+    rows = representative1[representative1 %in% fig_table$Gene_ID],
+    ) |>
+  tab_row_group(
+    label = "Auxin Genes",
+    rows = representative2[representative2 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Carbohydrate biosynthetic process",
+    rows = representative3[representative3 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Regulation of plant organ morphogenesis",
+    rows = representative4[representative4 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Response to auxin",
+    rows = representative5[representative5 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Response to gibberellin",
+    rows = representative6[representative6 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Photosynthesis",
+    rows = representative7[representative7 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Leaf development",
+    rows = representative8[representative8 %in% fig_table$Gene_ID]
+  ) |>
+  tab_stubhead(label = "Gene ID")
+
+table_1 = tab_style(table_1,
+    style = cell_text(align = "center"),
+    locations = cells_row_groups()
+  )
+
+table_1 = tab_style(table_1,
+    style = cell_text(align = "center"),
+    locations = cells_column_labels() 
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_column_labels()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_stubhead()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_body()
+  ) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stub()) |>
+  tab_style(
+    style = cell_borders(
+      sides = c("top", "bottom", "left", "right"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_stub()) 
+    
+  
+
+colfunc = colorRampPalette(c("#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573"))
+
+table_1_1 = data_color(table_1, 
+  columns = everything(),
+  rows = everything(),
+  method = c("bin"),
+  bins = c(-5, -2, -0.5, 0.5, 2, 5),
+  quantiles = 20,
+  palette = colfunc(8),
+  domain = c(-5, 5))
+
+colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73" ))
+table_1_2 = data_color(table_1, 
+  columns = everything(),
+  rows = everything(),
+  method = c("numeric"),
+  bins = 4,
+  quantiles = 20,
+  direction = "row",
+  palette = colfunc(4))
+
+
+```
+
