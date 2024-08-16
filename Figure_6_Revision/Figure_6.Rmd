@@ -613,4 +613,5 @@ table_1_2 = data_color(table_1,
 gtsave(table_1_1, "CNGC_log2F_absolute_values.html")
 gtsave(table_1_2, "CNGC_log2F_comparison.html")
 
+
 ```
