@@ -650,19 +650,29 @@ dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = 
 
 cngc_list$Gene_Name = factor(cngc_list$Gene_Name, level = paste("CNGC", 1:20,sep = ""))
 cngc_list$significance = ""
-cngc_list$significance[cngc_list$adj.pval <= 0.01] = "*"
+cngc_list$significance[cngc_list$adj.pval <= 0.01 & (cngc_list$log2FC >= 1 | cngc_list$log2FC <= -1)] = "*"
 
-cngc_barplot = ggplot(fig_table_long, mapping = aes(x = Gene_Name, y = Log2FC, fill = Treatment)) +
+# Add missing CNGCs as NA (Prefiltered in 3D-RNA seq)
+c("CNGC7", "CNGC8", "CNGC16", "CNGC18") #cngcs_id$Gene_Name[-na.omit(match(cngc_list$Gene_Name, cngcs_id$Gene_Name))]
+missing_cngcs = tibble(Gene_Name = rep(c("CNGC7", "CNGC8", "CNGC16", "CNGC18"), times = 3), contrast = rep(c("PTI", "ETI", "PTI + ETI"), times = 4))
+missing_cngcs$log2FC = 0
+missing_cngcs$significance = "NA"
+missing_cngcs$adj.pval = NA
+missing_cngcs$target = NA
+cngc_list = rbind(cngc_list, missing_cngcs)
+
+cngc_barplot = ggplot(cngc_list, mapping = aes(x = Gene_Name, y = log2FC, fill = contrast)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.75) + 
   scale_fill_manual(values = c("#E69F00", "#0072B2", "#12A27B"),
                     name = "Treatment", labels = c("PTI", "ETI", "PTI + ETI")) +
   scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
   geom_hline(yintercept=0) +
-  geom_text(data = fig_table_long[fig_table_long$Log2FC > 0,], mapping = aes(x = Gene_Name, y = Log2FC, label = significance), position = position_dodge(width = 0.75), size = 5) +
-   geom_text(data = fig_table_long[fig_table_long$Log2FC < 0 | fig_table_long$significance == "",], mapping = aes(x = Gene_Name, y = Log2FC - 0.3, label = significance), position = position_dodge2(width = 0.75), size = 5) +
+  geom_text(data = cngc_list[cngc_list$log2FC > 0,], mapping = aes(x = Gene_Name, y = log2FC, label = significance), position = position_dodge(width = 0.75), size = 5) +
+   geom_text(data = cngc_list[cngc_list$log2FC < 0 | cngc_list$significance == "",], mapping = aes(x = Gene_Name, y = log2FC - 0.3, label = significance), position = position_dodge2(width = 0.75), size = 5) +
+  geom_text(data = cngc_list[cngc_list$significance == "NA" & cngc_list$contrast == "ETI",], mapping = aes(x = Gene_Name, y = log2FC + 0.3, label = significance), size = 5) +
   dlab_theme 
 
-ggsave("cngc_barplot.pdf", plot = cngc_barplot, units = "in", width = 8,
+ggsave("cngc_barplot.pdf", plot = cngc_barplot, units = "in", width = 10,
   height = 4.5)
 
 ```
