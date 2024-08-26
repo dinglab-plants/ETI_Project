@@ -248,6 +248,8 @@ gene_list = gene_list[gene_list$contrast != "SETI_p.E-SETI_s.E" & gene_list$cont
 gene_list$contrast = factor(gene_list$contrast)
 
 full_gene_list = read.csv("./Data/Downregulated_ETI/Full_geneslist_logF2.csv", sep = ";", dec = ".", header = TRUE, row.names = 1)
+
+
 ```
 
 
@@ -337,12 +339,17 @@ gene_terms = c(names(representative1), names(representative2), names(representat
 
 representative_genes = data.frame(Gene_ID = gene_id , term_name = gene_terms)
 representative_genes = cbind(representative_genes, full_gene_list[match(representative_genes$Gene_ID, row.names(full_gene_list)), c("SETI_WT.E.SETI_WT.mock", "SETI_p.E.SETI_p.mock", "SETI_s.E.SETI_s.mock", "SETI_ps.E.SETI_ps.mock")])
-colnames(representative_genes)[3:6] = c("SETI", "PAD4", "SAG101", "PAD4 SAG101")
-fig_table = representative_genes[,c("Gene_ID", "SETI", "PAD4", "SAG101", "PAD4 SAG101")]
+colnames(representative_genes)[3:6] = c("SETI", "PAD4", "SAG101", "PAD4_SAG101")
+fig_table = representative_genes[,c("Gene_ID", "SETI", "PAD4", "SAG101", "PAD4_SAG101")]
 fig_table = fig_table[!duplicated(fig_table$Gene_ID),]
 #fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)) |
 #                        ((fig_table$SETI > fig_table$PAD4) & (fig_table$SAG101 > fig_table$PAD4)),]
 fig_table = fig_table[((fig_table$SETI < fig_table$PAD4) & (fig_table$SAG101 < fig_table$PAD4)),]
+
+fig_table$SETI = round(fig_table$SETI, 3)
+fig_table$PAD4 = round(fig_table$PAD4, 3)
+fig_table$SAG101 = round(fig_table$SAG101, 3)
+fig_table$PAD4_SAG101 = round(fig_table$PAD4_SAG101, 3)
 
 write.csv2(fig_table, "table.csv")
 ```
@@ -382,82 +389,74 @@ table_1 = gt(fig_table, rowname_col = "Gene_ID")|>
     label = "Leaf development",
     rows = representative8[representative8 %in% fig_table$Gene_ID]
   ) |>
-  tab_stubhead(label = "Gene ID")
-
-table_1 = tab_style(table_1,
-    style = cell_text(align = "center"),
-    locations = cells_row_groups()
+  tab_stubhead(label = "Gene ID")  |>
+  cols_label(
+    Gene_ID = "Gene ID",
+    SETI = md("Seti"),
+    SAG101 = md("Seti *sag101*"),
+    PAD4 = md("Seti *pad4*"),
+    PAD4_SAG101 = md("Seti *pad4 sag101*")
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#d4d2d2"),  # Set the background color to grey
+    locations = list(
+      cells_column_labels(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_stubhead(),
+      cells_column_spanners()
+    )     # Target the row groups
   )
 
 table_1 = tab_style(table_1,
     style = cell_text(align = "center"),
+    locations = list(
+      cells_body(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_column_spanners()
+    )
+  )
+
+table_1 = tab_style(table_1,
+    style = cell_text(align = "center", v_align = "middle"),
     locations = cells_column_labels() 
   ) |>
   tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_column_labels()
-  ) |>
-  tab_style(
-    style = cell_text(align = "center"),
+    style = cell_text(align = "center", v_align = "middle"),
     locations = cells_stubhead()
   ) |>
   tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_body()
+    style = cell_borders(
+      sides = "all", # Add borders to all sides
+      color = "black", # Border color
+      weight = px(1)   # Border thickness
+    ),
+    locations = list(
+      cells_body(),
+      cells_column_labels(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_stubhead(),
+      cells_column_spanners(),
+      cells_source_notes(),
+      cells_footnotes(),
+      cells_title()
+    )
   ) |>
+  cols_width(
+    everything() ~ px(100)  # Set all columns to 100 pixels wide
+  ) |> 
+  tab_options(
+    column_labels.border.bottom.style = 'none',
+    column_labels.border.top.style = 'none',
+    row_group.border.top.style = 'none',
+    column_labels.vlines.color = 'black'
+  )  %>% 
   tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_body()
-  ) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_body()
-  ) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_column_labels()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stubhead())  |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_row_groups()) 
+    style = cell_borders(sides = "bottom", color = "black", weight = px(3)),
+    locations = cells_column_labels(everything())
+  )
     
   
 
@@ -482,8 +481,10 @@ table_1_2 = data_color(table_1,
   direction = "row",
   palette = colfunc(4))
 
-gtsave(table_1_1, "table_1_1.html")
-gtsave(table_1_2, "table_1_2.html")
+print(table_1_1)
+
+#gtsave(table_1_1, "table_1_1.html")
+#gtsave(table_1_2, "table_1_2.html")
 ```
 
 # Immune Pathways
