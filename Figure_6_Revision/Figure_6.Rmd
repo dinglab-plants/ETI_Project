@@ -21,6 +21,7 @@ library("ggpubr")
 library("stringr")
 library("r2r")
 library("gt")
+library("gtExtras")
 library("ComplexUpset")
 library("tibble")
 library("tidyr")
@@ -352,32 +353,16 @@ fig_table$SAG101 = round(fig_table$SAG101, 3)
 fig_table$PAD4_SAG101 = round(fig_table$PAD4_SAG101, 3)
 fig_table = fig_table[order(fig_table$PAD4),]
 
-write.csv2(fig_table, "table.csv")
+fig_table1 = na.omit(fig_table[fig_table$Gene_ID %in% c(representative6,representative7,representative8,representative2),])
+group2 = c(representative1,representative5,representative3,representative4)[c(representative1,representative5,representative3,representative4) != "AT1G74840"]
+fig_table1_1 = na.omit(fig_table[fig_table$Gene_ID %in% group2,])
+
+
 ```
 
 ```{r Table Figure, echo=TRUE}
 
-table_1 = gt(fig_table, rowname_col = "Gene_ID")|> 
-  tab_row_group( 
-    label = "ABA Genes",
-    rows = representative1[representative1 %in% fig_table$Gene_ID],
-    ) |>
-  tab_row_group(
-    label = "Auxin Genes",
-    rows = representative2[representative2 %in% fig_table$Gene_ID]
-  ) |>
-  tab_row_group(
-    label = "Carbohydrate biosynthetic process",
-    rows = representative3[representative3 %in% fig_table$Gene_ID]
-  ) |>
-  tab_row_group(
-    label = "Regulation of plant organ morphogenesis",
-    rows = representative4[representative4 %in% fig_table$Gene_ID]
-  ) |>
-  tab_row_group(
-    label = "Response to auxin",
-    rows = representative5[representative5 %in% fig_table$Gene_ID]
-  ) |>
+table_1 = gt(fig_table1, rowname_col = "Gene_ID")|> 
   tab_row_group(
     label = "Response to gibberellin",
     rows = representative6[representative6 %in% fig_table$Gene_ID]
@@ -389,6 +374,10 @@ table_1 = gt(fig_table, rowname_col = "Gene_ID")|>
   tab_row_group(
     label = "Leaf development",
     rows = representative8[representative8 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Auxin-activated signaling pathway",
+    rows = representative2[representative2 %in% fig_table$Gene_ID]
   ) |>
   tab_stubhead(label = "Gene ID")  |>
   cols_label(
@@ -408,6 +397,43 @@ table_1 = gt(fig_table, rowname_col = "Gene_ID")|>
       cells_column_spanners()
     )     # Target the row groups
   )
+
+table_1_1 = gt(fig_table1_1, rowname_col = "Gene_ID")|> 
+  tab_row_group( 
+    label = "Response to abscisic acid",
+    rows = representative1[representative1 %in% fig_table$Gene_ID],
+    ) |>
+  tab_row_group(
+    label = "Response to auxin",
+    rows = representative5[(representative5 %in% fig_table$Gene_ID) & (representative5 != "AT1G74840")]
+  ) |>  
+  tab_row_group(
+    label = "Carbohydrate biosynthetic process",
+    rows = representative3[representative3 %in% fig_table$Gene_ID]
+  ) |>
+  tab_row_group(
+    label = "Regulation of plant organ morphogenesis",
+    rows = representative4[representative4 %in% fig_table$Gene_ID]
+  ) |>
+  tab_stubhead(label = "Gene ID")  |>
+  cols_label(
+    Gene_ID = "Gene ID",
+    SETI = md("Seti"),
+    SAG101 = md("Seti *sag101*"),
+    PAD4 = md("Seti *pad4*"),
+    PAD4_SAG101 = md("Seti *pad4 sag101*")
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#d4d2d2"),  # Set the background color to grey
+    locations = list(
+      cells_column_labels(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_stubhead(),
+      cells_column_spanners()
+    )     # Target the row groups
+  )
+
 
 table_1 = tab_style(table_1,
     style = cell_text(align = "center"),
@@ -444,7 +470,7 @@ table_1 = tab_style(table_1,
     )
   ) |>
   cols_width(
-    everything() ~ px(105)  # Set all columns to 100 pixels wide
+    everything() ~ px(60)  # Set all columns to 100 pixels wide
   ) |> 
   tab_options(
     column_labels.border.bottom.style = 'none',
@@ -464,13 +490,84 @@ table_1 = tab_style(table_1,
                      cells_row_groups(),
                      cells_body(columns = "Gene_ID"),
                      cells_stub())
+  ) %>%
+  tab_style(
+    style = cell_text(size = px(8)),
+    locations = list(cells_body(), cells_column_labels(), cells_stub(), cells_stubhead(), cells_row_groups()) 
   )
+
+
+table_1_1 = tab_style(table_1_1,
+    style = cell_text(align = "center"),
+    locations = list(
+      cells_body(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_column_spanners()
+    )
+  )
+
+table_1_1 = tab_style(table_1_1,
+    style = cell_text(align = "center", v_align = "middle"),
+    locations = cells_column_labels() 
+  ) |>
+  tab_style(
+    style = cell_text(align = "center", v_align = "middle"),
+    locations = cells_stubhead()
+  ) |>
+  tab_style(
+    style = cell_borders(
+      sides = "all", # Add borders to all sides
+      color = "black", # Border color
+      weight = px(2)   # Border thickness
+    ),
+    locations = list(
+      cells_body(),
+      cells_row_groups(),
+      cells_stub(),
+      cells_column_spanners(),
+      cells_source_notes(),
+      cells_footnotes(),
+      cells_title()
+    )
+  ) |>
+  cols_width(
+    everything() ~ px(60)  # Set all columns to 100 pixels wide
+  ) |> 
+  tab_options(
+    column_labels.border.bottom.style = 'none',
+    column_labels.border.top.style = 'none',
+    row_group.border.top.style = 'none',
+    column_labels.vlines.color = 'black'
+  ) %>% 
+  tab_style(
+    style = cell_borders(sides = "all", color = "black", weight = px(2)),
+    locations = list(cells_column_labels(everything()),
+                     cells_stubhead())
+  ) %>% 
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = list(cells_column_labels(),
+                     cells_stubhead(),
+                     cells_row_groups(),
+                     cells_body(columns = "Gene_ID"),
+                     cells_stub())
+  ) %>%
+  tab_style(
+    style = cell_text(size = px(8)),
+    locations = list(cells_body(), cells_column_labels(), cells_stub(), cells_stubhead(), cells_row_groups()) 
+  ) %>%
+  tab_options(
+    table.margin.right = px(20) # Adds 20px of space to the right side
+  )
+
+    
     
   
 
 colfunc = colorRampPalette(c("darkblue","#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573", "red"))
 
-table_1_1 = data_color(table_1, 
+table_1 = data_color(table_1, 
   columns = everything(),
   rows = everything(),
   method = c("bin"),
@@ -478,19 +575,32 @@ table_1_1 = data_color(table_1,
   palette = colfunc(23),
   domain = c(-5, 5))
 
-colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73", "#f5a573" ))
-table_1_2 = data_color(table_1, 
+colfunc = colorRampPalette(c("darkblue","#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573", "red"))
+
+table_1_1 = data_color(table_1_1, 
   columns = everything(),
   rows = everything(),
-  method = c("numeric"),
-  bins = 4,
-  quantiles = 20,
-  direction = "row",
-  palette = colfunc(4))
+  method = c("bin"),
+  bins = c(-5, -2, -1.5,-1, -0.9, -0.8,-0.7, -0.6, -0.5, -0.4, -0.3, -0.20, 0.20, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 5),
+  palette = colfunc(23),
+  domain = c(-5, 5))
 
-print(table_1_1)
+my_tables = list(table_1, table_1_1)
+gt_two_column_layout(my_tables)
+gt_two_column_layout(my_tables, output = "save",
+                     filename = "basic-two-col.png",
+                      vwidth = 670, vheight = 620)
 
-#gtsave(table_1_1, "table_1_1.html")
+# colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73", "#f5a573" ))
+# table_1_2 = data_color(table_1, 
+#   columns = everything(),
+#   rows = everything(),
+#   method = c("numeric"),
+#   bins = 4,
+#   quantiles = 20,
+#   direction = "row",
+#   palette = colfunc(4))
+
 #gtsave(table_1_2, "table_1_2.html")
 ```
 
@@ -612,8 +722,8 @@ table_1_2 = data_color(table_1,
   direction = "row",
   palette = colfunc(4))
 
-gtsave(table_1_1, "CNGC_log2F_absolute_values.html")
-gtsave(table_1_2, "CNGC_log2F_comparison.html")
+gtsave(table_1_1, "CNGC_log2F_absolute_values.png")
+#gtsave(table_1_2, "CNGC_log2F_comparison.html")
 ```
 
 # CNGC Barplot
@@ -682,5 +792,53 @@ cngc_barplot = ggplot(cngc_list, mapping = aes(x = Gene_Name, y = log2FC, fill =
 
 ggsave("cngc_barplot.pdf", plot = cngc_barplot, units = "in", width = 10,
   height = 4.5)
+
+```
+
+
+```{r Kodi, echo=TRUE}
+
+intervals = c("-5 to -2","-2 to -1.5","-1.5 to -1","-1 to -0.9","-0.9 to -0.8","-0.8 to -0.7","-0.7 to -0.6","-0.6 to -0.5","-0.5 to -0.4","-0.4 to -0.3",
+  "-0.3 to -0.2","-0.2 to 0.2","0.2 to 0.3","0.3 to 0.4","0.4 to 0.5","0.5 to 0.6","0.6 to 0.7","0.7 to 0.8","0.8 to 0.9","0.9 to 1",
+  "1 to 1.5","1.5 to 2","2 to 5")
+
+xl <- 1
+yb <- 0
+xr <- 1.1
+yt <- 2
+
+pdf("my_legend.pdf", width = 8, height = 6)
+par(mar=c(5.1,0.5,4.1,0.5))
+test = plot(NA,type="n",ann=FALSE,xlim=c(0.9,2),ylim=c(0,2.3),xaxt="n",yaxt="n",bty="n")
+rect(
+     xl,
+     head(seq(yb,yt,(yt-yb)/23),-1),
+     xr,
+     tail(seq(yb,yt,(yt-yb)/23),-1),
+     col=colfunc(23)
+    )
+
+text(
+     x = (xl + xr) / 2, # X-coordinate (center of the rectangle)
+     y = (head(seq(yb, yt, (yt - yb) / 23), -1) + tail(seq(yb, yt, (yt - yb) / 23), -1)) / 2, # Y-coordinate (center of the rectangle)
+     labels = intervals, # Labels to add (1 to 23)
+     cex = 0.7, # Text size
+     col = c(rep("white", 5), rep("black", 18)) # Text color (change if needed)
+    )
+
+title(main = "Log2FC")
+
+dev.off()
+
+colfunc = colorRampPalette(c("darkblue","#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573", "red"))
+
+table_1_1 = data_color(table_1_1, 
+  columns = everything(),
+  rows = everything(),
+  method = c("bin"),
+  bins = c(-5, -2, -1.5,-1, -0.9, -0.8,-0.7, -0.6, -0.5, -0.4, -0.3, -0.20, 0.20, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 5),
+  palette = colfunc(23),
+  domain = c(-5, 5))
+
 
 ```
