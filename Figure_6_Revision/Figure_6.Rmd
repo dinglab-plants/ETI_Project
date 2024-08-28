@@ -457,7 +457,7 @@ table_1 = tab_style(table_1,
     style = cell_borders(
       sides = "all", # Add borders to all sides
       color = "black", # Border color
-      weight = px(2)   # Border thickness
+      weight = px(1)   # Border thickness
     ),
     locations = list(
       cells_body(),
@@ -472,14 +472,16 @@ table_1 = tab_style(table_1,
   cols_width(
     everything() ~ px(60)  # Set all columns to 100 pixels wide
   ) |> 
-  tab_options(
-    column_labels.border.bottom.style = 'none',
-    column_labels.border.top.style = 'none',
-    row_group.border.top.style = 'none',
-    column_labels.vlines.color = 'black'
-  ) %>% 
+  gt::tab_options(
+    column_labels.border.bottom.width = px(1), # Fix column label and spanner bottom border
+    column_labels.border.top.width = px(1), # Fix column label top border
+    table.border.bottom.width = px(1), # Fix table bottom border
+    table.border.top.width = px(1), # Fix table top border
+    table_body.border.top.width = px(1), # Fix body top border
+    table_body.border.bottom.width = px(1) # Fix body bottom border
+  ) |>
   tab_style(
-    style = cell_borders(sides = "all", color = "black", weight = px(2)),
+    style = cell_borders(sides = "all", color = "black", weight = px(1)),
     locations = list(cells_column_labels(everything()),
                      cells_stubhead())
   ) %>% 
@@ -519,7 +521,7 @@ table_1_1 = tab_style(table_1_1,
     style = cell_borders(
       sides = "all", # Add borders to all sides
       color = "black", # Border color
-      weight = px(2)   # Border thickness
+      weight = px(1)   # Border thickness
     ),
     locations = list(
       cells_body(),
@@ -533,15 +535,17 @@ table_1_1 = tab_style(table_1_1,
   ) |>
   cols_width(
     everything() ~ px(60)  # Set all columns to 100 pixels wide
-  ) |> 
-  tab_options(
-    column_labels.border.bottom.style = 'none',
-    column_labels.border.top.style = 'none',
-    row_group.border.top.style = 'none',
-    column_labels.vlines.color = 'black'
+  )  |> 
+  gt::tab_options(
+    column_labels.border.bottom.width = px(1), # Fix column label and spanner bottom border
+    column_labels.border.top.width = px(1), # Fix column label top border
+    table.border.bottom.width = px(1), # Fix table bottom border
+    table.border.top.width = px(1), # Fix table top border
+    table_body.border.top.width = px(1), # Fix body top border
+    table_body.border.bottom.width = px(1) # Fix body bottom border
   ) %>% 
   tab_style(
-    style = cell_borders(sides = "all", color = "black", weight = px(2)),
+    style = cell_borders(sides = "all", color = "black", style = "solid", weight = px(1)),
     locations = list(cells_column_labels(everything()),
                      cells_stubhead())
   ) %>% 
@@ -589,6 +593,7 @@ my_tables = list(table_1, table_1_1)
 gt_two_column_layout(my_tables)
 gt_two_column_layout(my_tables, output = "save",
                      filename = "basic-two-col2.png", vwidth = 670, vheight = 620)
+
 
 # colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73", "#f5a573" ))
 # table_1_2 = data_color(table_1, 
