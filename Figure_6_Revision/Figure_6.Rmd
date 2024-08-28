@@ -382,10 +382,10 @@ table_1 = gt(fig_table1, rowname_col = "Gene_ID")|>
   tab_stubhead(label = "Gene ID")  |>
   cols_label(
     Gene_ID = "Gene ID",
-    SETI = md("Seti"),
-    SAG101 = md("Seti *sag101*"),
-    PAD4 = md("Seti *pad4*"),
-    PAD4_SAG101 = md("Seti *pad4 sag101*")
+    SETI = md("SETI"),
+    SAG101 = md("SETI *sag101*"),
+    PAD4 = md("SETI *pad4*"),
+    PAD4_SAG101 = md("SETI *pad4 sag101*")
   ) |>
   tab_style(
     style = cell_fill(color = "#d4d2d2"),  # Set the background color to grey
@@ -418,10 +418,10 @@ table_1_1 = gt(fig_table1_1, rowname_col = "Gene_ID")|>
   tab_stubhead(label = "Gene ID")  |>
   cols_label(
     Gene_ID = "Gene ID",
-    SETI = md("Seti"),
-    SAG101 = md("Seti *sag101*"),
-    PAD4 = md("Seti *pad4*"),
-    PAD4_SAG101 = md("Seti *pad4 sag101*")
+    SETI = md("SETI"),
+    SAG101 = md("SETI *sag101*"),
+    PAD4 = md("SETI *pad4*"),
+    PAD4_SAG101 = md("SETI *pad4 sag101*")
   ) |>
   tab_style(
     style = cell_fill(color = "#d4d2d2"),  # Set the background color to grey
@@ -588,8 +588,7 @@ table_1_1 = data_color(table_1_1,
 my_tables = list(table_1, table_1_1)
 gt_two_column_layout(my_tables)
 gt_two_column_layout(my_tables, output = "save",
-                     filename = "basic-two-col.png",
-                      vwidth = 670, vheight = 620)
+                     filename = "basic-two-col2.png", vwidth = 670, vheight = 620)
 
 # colfunc = colorRampPalette(c("#5c6cfa","#d5d7ed", "#f5bd73", "#f5a573" ))
 # table_1_2 = data_color(table_1, 
