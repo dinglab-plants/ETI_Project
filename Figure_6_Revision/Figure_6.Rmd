@@ -216,16 +216,34 @@ upset_plot_up = upset_plot_up[,c(1,3,2,4)]
 upset_up_plot = upset(upset_plot_up, colnames(upset_plot_up[,c(4,3,2)]), name='Lines', width_ratio=0.1, labeller= vlabeller, sort_sets=FALSE, set_sizes=FALSE, themes=upset_default_themes(text=element_text(size=8))) + ggtitle('Intersection of upregulated DEGs')
 
 # ETI specific genes
-write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
-           file = "ETI_Specific_Genes.csv")
+#write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
+#           file = "ETI_Specific_Genes.csv")
 
-write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
-           file = "PTI_Specific_Genes.csv")
+#write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
+#           file = "PTI_Specific_Genes.csv")
 
-write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
-           file = "PTI_plus_ETIPTI_Specific_Genes.csv")
+#write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
+#           file = "PTI_plus_ETIPTI_Specific_Genes.csv")
+
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
+          file = "PTI_plus_ETI_plus_ETIPTI_Specific_Genes.csv")
+
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 1 & upset_plot_up$PTI_plus_ETI == 0, "genes"]),
+          file = "PTI_plus_ETI_Specific_Genes.csv")
+
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
+          file = "PTI_ETI_Specific_Genes.csv")
+
+write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
+          file = "ETI_plus_PTIETI_Specific_Genes.csv")
 
 
+
+ETI = read.csv2("Figures_Tables/ETI_Specific_Genes.csv")
+PTI = read.csv2("Figures_Tables/PTI_Specific_Genes.csv")
+PTI_plus_ETIPTI_Specific = read.csv2("Figures_Tables/PTI_plus_ETIPTI_Specific_Genes.csv")
+Upset_plot_gene_list = gene_list
+gene_list[gene_list %in% c(ETI, PTI, PTI_plus_ETIPTI_Specific)]
 
 Genes = length(upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"])
 
@@ -610,7 +628,7 @@ gt_two_column_layout(my_tables, output = "save",
 
 # Immune Pathways
 
-Involvement of CNGCs in PTI, ETI and PTI + ETI
+# Involvement of CNGCs in PTI, ETI and PTI + ETI
 ```{r Table Figure, echo=TRUE}
 immune_pathway_full_list =  tibble(read.csv2("Immune_pathway_genes.csv")[,c(-1,-4)])
 immune_pathway_full_list$contrast = factor(immune_pathway_full_list$contrast)
@@ -800,7 +818,7 @@ ggsave("cngc_barplot.pdf", plot = cngc_barplot, units = "in", width = 10,
 ```
 
 
-```{r Kodi, echo=TRUE}
+```{r Table Legend, echo=TRUE}
 
 intervals = c("-5 to -2","-2 to -1.5","-1.5 to -1","-1 to -0.9","-0.9 to -0.8","-0.8 to -0.7","-0.7 to -0.6","-0.6 to -0.5","-0.5 to -0.4","-0.4 to -0.3",
   "-0.3 to -0.2","-0.2 to 0.2","0.2 to 0.3","0.3 to 0.4","0.4 to 0.5","0.5 to 0.6","0.6 to 0.7","0.7 to 0.8","0.8 to 0.9","0.9 to 1",
