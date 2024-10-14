@@ -119,7 +119,7 @@ png(file="helperless.png",
 plot1_4
 dev.off()
 
-ggsave("legend.pdf", plot = plot1_4, units = "in", width = 7.5,
+ggsave("helper.pdf", plot = plot1_4, units = "in", width = 7.5,
   height = 3.25)
 ```
 

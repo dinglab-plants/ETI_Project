@@ -111,7 +111,7 @@ plot1 = ggplot(bacteria1, mapping = aes(x = line, y = cfu)) +
 
 test = ggplot_build(plot1)
 
-plot1_4 = plot1 + geom_text(data = tibble(x_len = 1:10), aes(x = test[["data"]][[1]][["x"]], y= test[["data"]][[1]][["ymax"]] + 0.5), label = sig_ordered$sig_letter, size = 3, color = "black", inherit.aes = FALSE) + geom_vline(xintercept = c(1.5,2.5,3.5,4.5), linetype = "dashed", alpha = 0.25)
+plot1_4 = plot1 + geom_text(data = tibble(x_len = 1:10), aes(x = test[["data"]][[1]][["x"]], y= test[["data"]][[1]][["ymax"]] + 0.75), label = sig_ordered$sig_letter, size = 3, color = "black", inherit.aes = FALSE) + geom_vline(xintercept = c(1.5,2.5,3.5,4.5), linetype = "dashed", alpha = 0.25)
 
 print(plot1_4)
 ```

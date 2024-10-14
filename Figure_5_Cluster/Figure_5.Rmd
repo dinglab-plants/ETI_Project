@@ -75,7 +75,6 @@ pad4_sag101_dependent = read.csv2(file = "./Data/PAD4_sag101_dependent.csv", dec
 pad4_sag101_dependent$term_name = factor(pad4_sag101_dependent$term_name, levels = pad4_sag101_dependent$term_name[order(pad4_sag101_dependent$negative_log10_of_adjusted_p_value)])
 pad4_sag101_dependent$term_ratio = paste(pad4_sag101_dependent$intersection_size, pad4_sag101_dependent$term_size, sep = "/")
 
-
 dlab_theme = theme(text = element_text(size=6), axis.text = element_text(size=6),
         axis.text.x = element_text(size = 6, face = "bold", colour = "black"),
         axis.text.y = element_text(color = "black", angle = 0, hjust = 1),
@@ -319,6 +318,7 @@ write.csv2(upregulated[upregulated$contrast == "SETI_WT.E-SETI_WT.mock",], file 
 
 upset(upset_plot_up, colnames(upset_plot_up)[2:6])
 
+
 var.lab3 = c(
   "SETI" = bquote(bold("SETI wt")),
   "PAD4" = expression(bold("SETI") ~ bolditalic("pad4")),
@@ -330,6 +330,7 @@ var.lab3 = c(
 vlabeller <- function (variable, value) {
   return(var.lab3[value])
 }
+
 
 upset_plot_up = upset_plot_up[,c(1, sort(2:6, decreasing = TRUE))]
 
@@ -348,6 +349,35 @@ pad4_dependent_plot
 sag101_dependent_plot
 pad4_sag101_dependent_plot
 
+
+partial_dependent = read.csv2(file = "./Data/partial_dependency.csv", dec = ".",
+                      header = TRUE)
+
+all(partial_dependent$Genes %in% SETI_pad4_sag101)
+
+SETI_pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1]
+
+my_list = list(SETI_pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1], SETI_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 1], sag101 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 1], pad4 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 0], pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1] ,SETI = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 0], SETI_pad4 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 0])
+
+# Find the maximum length of the elements in the list
+max_len <- max(sapply(my_list, length))
+
+# Pad shorter elements with NA
+my_list_padded <- lapply(my_list, function(x) {
+  length(x) <- max_len
+  return(x)
+})
+
+# Convert the list to a data.frame
+df <- as.data.frame(my_list_padded)
+
+# Export the data.frame as a CSV file
+write.csv2(df, "upset_plot_DEGs.csv", row.names = FALSE)
+
+
+#------------------------------------
+data.frame(Genes = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101])
+length(unique(unlist(str_split(pad4_sag101_dependent$intersections, ","))))
 
 line_dependent_cluster = ggarrange(qplot(1,1), pad4_dependent_plot, sag101_dependent_plot, pad4_sag101_dependent_plot)
 
