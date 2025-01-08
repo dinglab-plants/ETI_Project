@@ -27,6 +27,9 @@ library("stringr")
 
 ```{r Read Files}
 selected_genes = read.csv2("./Data/selected_DEGs.csv", dec = ".")
+cluster_genes = read.csv2("./Data/Target in each cluster heatmap 5067 DE genes.csv", dec = ".", sep = ",") 
+selected_genes$cluster = cluster_genes$Clusters[match(selected_genes$Gene_id, cluster_genes$Targets)]
+
 selected_genes$cluster = factor(selected_genes$cluster)
 
 gene_list = read.csv2(file = "./Data/Significant DE genes list and statistics.csv", sep = ",", dec = ".",

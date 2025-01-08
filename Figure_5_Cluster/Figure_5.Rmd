@@ -387,3 +387,19 @@ ggsave("Fig_5.pdf", plot = line_dependent_cluster , units = "in", width = 8,
   height = 7.5)
 
 ```
+
+```{r Error Check, echo=TRUE}
+
+all(unique(unlist(strsplit(c(paste(cluster_01$intersections, collapse = ","), paste(cluster_03$intersections, collapse = ","), paste(cluster_06$intersections, collapse = ","), paste(cluster_09$intersections, collapse = ",")), ","))) %in% unique(gene_list$target))
+
+sag101_dependent$intersections 
+pad4_dependent$intersections 
+pad4_sag101_dependent$intersections 
+
+all(unique(unlist(strsplit(c(paste(sag101_dependent$intersections , collapse = ","), paste(pad4_dependent$intersections , collapse = ","), paste(pad4_sag101_dependent$intersections , collapse = ",")), ","))) %in% unique(gene_list$target))
+
+all("AT2G13810" %in% unique(gene_list$target))
+AT2G18300
+length(unique(gene_list$target))
+
+```
