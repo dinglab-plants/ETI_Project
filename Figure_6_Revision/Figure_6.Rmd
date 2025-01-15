@@ -189,7 +189,7 @@ ggsave("Down_Cluster.pdf", plot = Down_Cluster , units = "in", width = 8, height
 This is an Upset plot for differentiating PTI, ETI, PTI + ETI specific and overlapping genes.
 
 ```{r Upset Plot, echo=TRUE}
-gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2024.08.05.11.24.04.j284/result/Significant DE genes list and statistics.csv", sep = ",", dec = ".", header = TRUE)
+gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2025.01.13.16.34.12.j145/result/Significant DE genes list and statistics_2.csv", sep = ",", dec = ".", header = TRUE)
 gene_list = gene_list[gene_list$contrast %in% c("SETI_WT.E-SETI_WT.mock", "SETI_WT.P-SETI_WT.mock", "SETI_WT.PE-SETI_WT.mock"),]
 
 upregulated = gene_list[gene_list$up.down == "up-regulated", ]
@@ -319,6 +319,40 @@ Genes = length(upset_plot_down[upset_plot_down$PAD4 == 0 & upset_plot_down$SAG10
 #   height = 3.25)
 # upset_up_plot
 # dev.off()
+
+
+my_list = list(SETI_pad4_sag101 = upset_plot_down$genes[upset_plot_down$SETI == 1 & upset_plot_down$PAD4 == 1 & upset_plot_down$SAG101 == 1], SETI_sag101 = upset_plot_down$genes[upset_plot_down$SETI == 1 & upset_plot_down$PAD4 == 0 & upset_plot_down$SAG101 == 1], sag101 = upset_plot_down$genes[upset_plot_down$SETI == 0 & upset_plot_down$PAD4 == 0 & upset_plot_down$SAG101 == 1], pad4 = upset_plot_down$genes[upset_plot_down$SETI == 0 & upset_plot_down$PAD4 == 1 & upset_plot_down$SAG101 == 0], pad4_sag101 = upset_plot_down$genes[upset_plot_down$SETI == 0 & upset_plot_down$PAD4 == 1 & upset_plot_down$SAG101 == 1] ,SETI = upset_plot_down$genes[upset_plot_down$SETI == 1 & upset_plot_down$PAD4 == 0 & upset_plot_down$SAG101 == 0], SETI_pad4 = upset_plot_down$genes[upset_plot_down$SETI == 1 & upset_plot_down$PAD4 == 1 & upset_plot_down$SAG101 == 0])
+
+# Find the maximum length of the elements in the list
+max_len <- max(sapply(my_list, length))
+
+# Pad shorter elements with NA
+my_list_padded <- lapply(my_list, function(x) {
+  length(x) <- max_len
+  return(x)
+})
+
+# Convert the list to a data.frame
+df <- as.data.frame(my_list_padded)
+
+# Export the data.frame as a CSV file
+write.csv2(df, "upset_plot_DEGs.csv", row.names = FALSE)
+
+```
+
+```{r Error Check, echo=TRUE}
+
+all(unique(unlist(strsplit(c(paste(cluster_01$intersections, collapse = ","), paste(cluster_03$intersections, collapse = ","), paste(cluster_06$intersections, collapse = ","), paste(cluster_09$intersections, collapse = ",")), ","))) %in% unique(gene_list$target))
+
+sag101_dependent$intersections 
+pad4_dependent$intersections 
+pad4_sag101_dependent$intersections 
+
+all(unique(unlist(strsplit(c(paste(sag101_dependent$intersections , collapse = ","), paste(pad4_dependent$intersections , collapse = ","), paste(pad4_sag101_dependent$intersections , collapse = ",")), ","))) %in% unique(gene_list$target))
+
+all("AT2G13810" %in% unique(gene_list$target))
+AT2G18300
+length(unique(gene_list$target))
 
 ```
 
