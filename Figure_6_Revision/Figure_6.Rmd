@@ -51,7 +51,7 @@ outersect <- function(x, y) {
 # Go Clusters of downregulated Genes
 ## Read Files
 
-```{r Read files}
+```{r Read files 1}
 
 # Downregulated Clusters: 1, 2, 4, 10
 cluster_01 = read.csv2(file = "./Data/GO for clusters/Cluster1_gProfiler_athaliana_07-01-2025_15-14-23__intersections.csv", sep = ",", dec = ".",
@@ -188,8 +188,8 @@ ggsave("Down_Cluster.pdf", plot = Down_Cluster , units = "in", width = 8, height
 
 This is an Upset plot for differentiating PTI, ETI, PTI + ETI specific and overlapping genes.
 
-```{r Upset Plot, echo=TRUE}
-gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2025.01.13.16.34.12.j145/result/Significant DE genes list and statistics_2.csv", sep = ",", dec = ".", header = TRUE)
+```{r Upset Plot 1, echo=TRUE}
+gene_list = read.csv2("./Data/Immune_Pathways/3drnaseq/X2025.01.13.16.34.12.j145/result/Significant DE genes list and statistics.csv", sep = ",", dec = ".", header = TRUE)
 gene_list = gene_list[gene_list$contrast %in% c("SETI_WT.E-SETI_WT.mock", "SETI_WT.P-SETI_WT.mock", "SETI_WT.PE-SETI_WT.mock"),]
 
 upregulated = gene_list[gene_list$up.down == "up-regulated", ]
@@ -239,16 +239,6 @@ write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_
 write.csv2(data.frame(Genes = upset_plot_up[upset_plot_up$ETI == 1 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"]),
           file = "ETI_plus_PTIETI_Specific_Genes.csv")
 
-
-
-ETI = read.csv2("Figures_Tables/ETI_Specific_Genes.csv")
-PTI = read.csv2("Figures_Tables/PTI_Specific_Genes.csv")
-PTI_plus_ETIPTI_Specific = read.csv2("Figures_Tables/PTI_plus_ETIPTI_Specific_Genes.csv")
-Upset_plot_gene_list = gene_list
-gene_list[gene_list %in% c(ETI, PTI, PTI_plus_ETIPTI_Specific)]
-
-Genes = length(upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & upset_plot_up$PTI_plus_ETI == 1, "genes"])
-
 # pdf(file="upset_plot_up.pdf",
 #     width = 4,
 #   height = 3.25)
@@ -261,7 +251,7 @@ Genes = length(upset_plot_up[upset_plot_up$ETI == 0 & upset_plot_up$PTI == 0 & u
 # Figure 5
 ## Read Files
 
-```{r Read files}
+```{r Read files 2}
 gene_list = read.csv2(file = "./Data/Downregulated_ETI/Significant DE genes list and statistics.csv", sep = ",", dec = ".",
                       header = TRUE)
 gene_list = gene_list[gene_list$contrast != "SETI_p.E-SETI_s.E" & gene_list$contrast != "SETI_p.E-SETI_WT.E"
@@ -337,22 +327,6 @@ df <- as.data.frame(my_list_padded)
 
 # Export the data.frame as a CSV file
 write.csv2(df, "upset_plot_DEGs.csv", row.names = FALSE)
-
-```
-
-```{r Error Check, echo=TRUE}
-
-all(unique(unlist(strsplit(c(paste(cluster_01$intersections, collapse = ","), paste(cluster_03$intersections, collapse = ","), paste(cluster_06$intersections, collapse = ","), paste(cluster_09$intersections, collapse = ",")), ","))) %in% unique(gene_list$target))
-
-sag101_dependent$intersections 
-pad4_dependent$intersections 
-pad4_sag101_dependent$intersections 
-
-all(unique(unlist(strsplit(c(paste(sag101_dependent$intersections , collapse = ","), paste(pad4_dependent$intersections , collapse = ","), paste(pad4_sag101_dependent$intersections , collapse = ",")), ","))) %in% unique(gene_list$target))
-
-all("AT2G13810" %in% unique(gene_list$target))
-AT2G18300
-length(unique(gene_list$target))
 
 ```
 
@@ -669,197 +643,6 @@ gt_two_column_layout(my_tables, output = "save",
 #   palette = colfunc(4))
 
 #gtsave(table_1_2, "table_1_2.html")
-```
-
-# Immune Pathways
-
-# Involvement of CNGCs in PTI, ETI and PTI + ETI
-```{r Table Figure, echo=TRUE}
-immune_pathway_full_list =  tibble(read.csv2("Immune_pathway_genes.csv")[,c(-1,-4)])
-immune_pathway_full_list$contrast = factor(immune_pathway_full_list$contrast)
-immune_pathway_full_list = pivot_wider(immune_pathway_full_list, names_from = contrast, names_expand = TRUE, values_from = c(log2FC))
-immune_pathway_full_list = immune_pathway_full_list[,c("target", "SETI_WT.E-SETI_WT.mock",  "SETI_WT.P-SETI_WT.mock","SETI_WT.PE-SETI_WT.mock")]
-names(immune_pathway_full_list) = c("Gene_ID", "PTI", "ETI", "PTI + ETI")
-cngcs_id = read.csv2("./Data/Representative_Genes/CNGCs.csv")
-cngc_list = cbind(cngcs_id, immune_pathway_full_list[match(cngcs_id$Gene_ID, immune_pathway_full_list$Gene_ID),])
-fig_table = cngc_list[,c("Gene_Name", "PTI", "ETI", "PTI + ETI")]
-#fig_table = fig_table[order(fig_table$ETI),]
-fig_table = na.omit(fig_table)
-fig_table_long = pivot_longer(fig_table, !Gene_Name, names_to = "Treatment", values_to = "Log2FC")
-
-table_1 = gt(fig_table, rowname_col = "Gene_Name")|> 
-  tab_row_group( 
-    label = "CNGCs",
-    rows = fig_table$Gene_Name,
-    ) |>
-  tab_stubhead(label = "Gene ID")
-
-table_1 = tab_style(table_1,
-    style = cell_text(align = "center"),
-    locations = cells_row_groups()
-  )
-
-table_1 = tab_style(table_1,
-    style = cell_text(align = "center"),
-    locations = cells_column_labels() 
-  ) |>
-  tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_column_labels()
-  ) |>
-  tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_stubhead()
-  ) |>
-  tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_body()
-  ) |>
-  tab_style(
-    style = cell_text(align = "center"),
-    locations = cells_body()
-  ) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_body()
-  ) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stub()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_column_labels()) |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_stubhead())  |>
-  tab_style(
-    style = cell_borders(
-      sides = c("top", "bottom", "left", "right"),
-      color = "black",
-      weight = px(1.5),
-      style = "solid"
-    ),
-    locations = cells_row_groups()) 
-    
-  
-
-colfunc = colorRampPalette(c("#5c6cfa", "#d5d7ed", "white", "#f5bd73", "#f5a573"))
-
-table_1_1 = data_color(table_1, 
-  columns = everything(),
-  rows = everything(),
-  method = c("bin"),
-  bins = c(-6, -3, -0.5, 0.5, 3, 6),
-  quantiles = 20,
-  palette = colfunc(8),
-  domain = c(-6, 6))
-
-colfunc = colorRampPalette(c("#5c6cfa","white", "#f5a573" ))
-table_1_2 = data_color(table_1, 
-  columns = everything(),
-  rows = everything(),
-  direction = "row",
-  palette = colfunc(4))
-
-gtsave(table_1_1, "CNGC_log2F_absolute_values.png")
-#gtsave(table_1_2, "CNGC_log2F_comparison.html")
-```
-
-# CNGC Barplot
-
-```{r Barplot, echo=TRUE}
-# p-value
-immune_pathway_full_list =  tibble(read.csv2("Immune_pathway_genes.csv")[,c(-1)])
-immune_pathway_full_list$contrast[immune_pathway_full_list$contrast == "SETI_WT.E-SETI_WT.mock"] = "ETI"
-immune_pathway_full_list$contrast[immune_pathway_full_list$contrast == "SETI_WT.P-SETI_WT.mock"] = "PTI"
-immune_pathway_full_list$contrast[immune_pathway_full_list$contrast == "SETI_WT.PE-SETI_WT.mock"] = "PTI + ETI"
-immune_pathway_full_list = immune_pathway_full_list[immune_pathway_full_list$contrast == "PTI" | immune_pathway_full_list$contrast == "ETI" | immune_pathway_full_list$contrast == "PTI + ETI",]
-immune_pathway_full_list$contrast = factor(immune_pathway_full_list$contrast)
-cngcs_id = read.csv2("./Data/Representative_Genes/CNGCs.csv")
-cngc_list = immune_pathway_full_list[which(immune_pathway_full_list$target %in% cngcs_id$Gene_ID),]
-cngc_list$Gene_Name = NA
-for (cngc_gene in cngcs_id$Gene_ID) {
-  cngc_list$Gene_Name[grep(cngc_gene, cngc_list$target)] = cngcs_id$Gene_Name[cngcs_id$Gene_ID == cngc_gene]
-}
-
-dlab_theme = theme(axis.title.y = element_text(margin = margin(r = 10)), text = element_text(size=12), axis.text = element_text(size=12),
-        axis.text.x = element_text(margin = margin(t = 5), size = 12, colour = "black", face="italic"),
-        axis.text.y = element_text(color = "black"),
-        axis.line.x = element_blank(),
-        axis.ticks = element_blank(),
-        #axis.ticks = element_line(size = 1),
-        axis.title.x = element_blank(),
-        legend.position="bottom", 
-        legend.text= element_text(size = 12),
-        #legend.title = element_text(size = 16, face = "bold"),
-        panel.background = element_blank(),
-        panel.spacing.x = unit(1, "lines"),
-        panel.spacing.y= unit(0,"lines"),
-        #panel.grid =  element_blank(),
-        legend.title = element_blank(),
-        panel.grid.minor.x =  element_blank(),
-        panel.grid.major.x =  element_blank(),
-        panel.grid.major.y =  element_blank(),
-        panel.grid.minor.y =  element_line(colour = "#999999"),
-        #panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
-        strip.background =element_rect(fill="white"),
-        strip.text.x = element_text(size = 12, hjust = 0.5))
-
-cngc_list$Gene_Name = factor(cngc_list$Gene_Name, level = paste("CNGC", 1:20,sep = ""))
-cngc_list$significance = ""
-cngc_list$significance[cngc_list$adj.pval <= 0.01 & (cngc_list$log2FC >= 1 | cngc_list$log2FC <= -1)] = "*"
-
-# Add missing CNGCs as NA (Prefiltered in 3D-RNA seq)
-c("CNGC7", "CNGC8", "CNGC16", "CNGC18") #cngcs_id$Gene_Name[-na.omit(match(cngc_list$Gene_Name, cngcs_id$Gene_Name))]
-missing_cngcs = tibble(Gene_Name = rep(c("CNGC7", "CNGC8", "CNGC16", "CNGC18"), times = 3), contrast = rep(c("PTI", "ETI", "PTI + ETI"), times = 4))
-missing_cngcs$log2FC = 0
-missing_cngcs$significance = "NA"
-missing_cngcs$adj.pval = NA
-missing_cngcs$target = NA
-cngc_list = rbind(cngc_list, missing_cngcs)
-
-cngc_barplot = ggplot(cngc_list, mapping = aes(x = Gene_Name, y = log2FC, fill = contrast)) +
-  geom_bar(stat = "identity", position = "dodge", width = 0.75) + 
-  scale_fill_manual(values = c("#E69F00", "#0072B2", "#12A27B"),
-                    name = "Treatment", labels = c("PTI", "ETI", "PTI + ETI")) +
-  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
-  geom_hline(yintercept=0) +
-  geom_text(data = cngc_list[cngc_list$log2FC > 0,], mapping = aes(x = Gene_Name, y = log2FC, label = significance), position = position_dodge(width = 0.75), size = 5) +
-   geom_text(data = cngc_list[cngc_list$log2FC < 0 | cngc_list$significance == "",], mapping = aes(x = Gene_Name, y = log2FC - 0.3, label = significance), position = position_dodge2(width = 0.75), size = 5) +
-  geom_text(data = cngc_list[cngc_list$significance == "NA" & cngc_list$contrast == "ETI",], mapping = aes(x = Gene_Name, y = log2FC + 0.3, label = significance), size = 5) +
-  dlab_theme 
-
-ggsave("cngc_barplot.pdf", plot = cngc_barplot, units = "in", width = 10,
-  height = 4.5)
-
 ```
 
 

@@ -353,8 +353,6 @@ pad4_sag101_dependent_plot
 partial_dependent = read.csv2(file = "./Data/partial_dependency.csv", dec = ".",
                       header = TRUE)
 
-all(partial_dependent$Genes %in% SETI_pad4_sag101)
-
 SETI_pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1]
 
 my_list = list(SETI_pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1], SETI_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 1], sag101 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 1], pad4 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 0], pad4_sag101 = upset_plot_up$genes[upset_plot_up$SETI == 0 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 1] ,SETI = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 0 & upset_plot_up$SAG101 == 0], SETI_pad4 = upset_plot_up$genes[upset_plot_up$SETI == 1 & upset_plot_up$PAD4 == 1 & upset_plot_up$SAG101 == 0])
@@ -389,9 +387,6 @@ ggsave("Fig_5.pdf", plot = line_dependent_cluster , units = "in", width = 8,
 ```
 
 ```{r Error Check, echo=TRUE}
-
-all(unique(unlist(strsplit(c(paste(cluster_01$intersections, collapse = ","), paste(cluster_03$intersections, collapse = ","), paste(cluster_06$intersections, collapse = ","), paste(cluster_09$intersections, collapse = ",")), ","))) %in% unique(gene_list$target))
-
 sag101_dependent$intersections 
 pad4_dependent$intersections 
 pad4_sag101_dependent$intersections 
@@ -399,7 +394,5 @@ pad4_sag101_dependent$intersections
 all(unique(unlist(strsplit(c(paste(sag101_dependent$intersections , collapse = ","), paste(pad4_dependent$intersections , collapse = ","), paste(pad4_sag101_dependent$intersections , collapse = ",")), ","))) %in% unique(gene_list$target))
 
 all("AT2G13810" %in% unique(gene_list$target))
-AT2G18300
 length(unique(gene_list$target))
-
 ```
