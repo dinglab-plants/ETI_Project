@@ -1,5 +1,5 @@
 # Github Repository: Modular mechanisms of immune priming and growth inhibition mediated by plant effector-triggered immunity!
-<div style="text-align: center;">
+<div style="display: flex; justify-content: center;">
 <picture>
     <img src="Images/GA_3.png" alt="Summary image for the "Modular mechanisms of immune priming and growth inhibition mediated by plant effector-triggered immunity!" publication, showing unequal redundancy of pad4 and sag101." width="500" style="display: inline-block;">
 </picture>
