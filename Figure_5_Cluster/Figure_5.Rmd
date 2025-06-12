@@ -20,6 +20,7 @@ library("ComplexUpset")
 library("EnhancedVolcano")
 library("ggpubr")
 library("stringr")
+library("gridExtra")
 library("r2r")
 ```
 
@@ -183,7 +184,6 @@ sag101_dependant[[c("LAZ5", "RPS4", "CRK4")]] = c("AT5G44870", "AT5G45250", "AT3
 
 highlight_genes = c(sag101_dependant[[c("LAZ5", "RPS4", "CRK4")]], pad4_dependant[[c("NPR1", "MC2", "PUB13")]], general_immunity[[c("ICS1", "PR1", "CAMTA3")]])
 
-
 sag101_vulcano_plot = EnhancedVolcano(sag101_vulcano  ,
 lab = sag101_vulcano$genes,
 x = 'log2FC',
@@ -284,12 +284,14 @@ arrowheads = TRUE)
 #ggsave("sag101_go_vulcano.png", plot = sag101_vulcano_plot, units = "in", width = 4,
 #  height = 3.25)
 
-# line_vulcano = grid.arrange(seti_vulcano_plot, pad4_vulcano_plot, sag101_vulcano_plot, nrow = 3, widths = c(4,4,4))
+line_vulcano = grid.arrange(seti_vulcano_plot, pad4_vulcano_plot, sag101_vulcano_plot, nrow = 2, ncol = 2, widths = c(4,4), heights = c(6,6))
 # 
 # 
-# ggsave("Fig_5_supp.pdf", plot = line_vulcano , units = "in", width = 8,
-#   height = 7)
+ggsave("Fig_5_supp.png", plot = line_vulcano , units = "in", width = 8,
+   height = 7, dpi = 600)
 
+ggsave("Legend.png", plot = pad4_vulcano_plot, units = "in", width = 8,
+   height = 7, dpi = 600)
 
 seti_vulcano_plot
 sag101_vulcano_plot
